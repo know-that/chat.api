@@ -38,19 +38,21 @@ class WebsocketService
             ]);
 
             // 创建发送方会话
-            ChatSession::create([
-                'user_id'           => $senderUser->id,
-                'receiver_type'     => 'user',
-                'receiver_id'       => $receiverUser->id,
+            ChatSession::updateOrcreate([
+                'user_id'       => $senderUser->id,
+                'source_type'   => 'user',
+                'source_id'     => $receiverUser->id
+            ],[
                 'last_message_type' => 'chat',
                 'last_message_id'   => $chat->id
             ]);
 
             // 创建接收方会话
-            ChatSession::create([
-                'user_id'           => $receiverUser->id,
-                'receiver_type'     => 'user',
-                'receiver_id'       => $senderUser->id,
+            ChatSession::updateOrcreate([
+                'user_id'       => $receiverUser->id,
+                'source_type'   => 'user',
+                'source_id'     => $senderUser->id
+            ], [
                 'last_message_type' => 'chat',
                 'last_message_id'   => $chat->id
             ]);

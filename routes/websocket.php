@@ -3,8 +3,8 @@
 use App\Websocket\Controllers\AuthController;
 use App\Websocket\Controllers\ChatController;
 use App\Websocket\Controllers\ChatSessionController;
-use App\Websocket\Controllers\Friend\FriendController;
 use App\Websocket\Controllers\Friend\FriendRequestController;
+use App\Websocket\Controllers\NoticeController;
 use App\Websocket\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -63,12 +63,20 @@ Route::name('websocket.')->group(function () {
         /**
          * 好友
          */
-        Route::apiResource('friends', FriendController::class);
+        Route::apiResource('friends', FriendRequestController::class);
 
         /**
          * 好友请求
          */
         Route::apiResource('friend-request', FriendRequestController::class);
+
+        // 好友请求审核
+        Route::put('/friend-request/{id}/examine', [FriendRequestController::class, 'examine']);
+
+        /**
+         * 通知
+         */
+        Route::apiResource('notices', NoticeController::class)->only(['index', 'show']);
     });
 });
 

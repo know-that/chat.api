@@ -3,6 +3,9 @@
 namespace App\Websocket\Controllers;
 
 use App\Models\Chat\ChatSession;
+use App\Models\Notice;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,7 +23,9 @@ class ChatSessionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $sessions = ChatSession::with(['source', 'lastMessage:id,content,is_read'])->where('user_id', $user->id)->get();
+        $sessions = ChatSession::with(['source', 'lastMessage:id,content,created_at'])
+            ->where('user_id', $user->id)
+            ->get();
         return $this->response($sessions);
     }
 }

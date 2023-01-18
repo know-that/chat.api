@@ -3,6 +3,7 @@
 namespace App\Models\Chat;
 
 use App\Models\BaseModel;
+use App\Models\Notice;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -28,5 +29,6 @@ class ChatSession extends BaseModel
     public function lastMessage(): MorphTo
     {
         return $this->morphTo();
+
     }
 }

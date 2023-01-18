@@ -18,7 +18,7 @@ class CreateChatSessionTable extends Migration {
 		{
 			$table->bigIncrements('id');
             $table->char('user_id')->comment('用户编号，关联 user.id');
-            $table->string('source_type')->default(1)->comment('发送方类型：user-用户、group_chat-群聊、friend_request-好友请求');
+            $table->string('source_type')->default(1)->comment('发送方类型：user-用户、group_chat-群聊、system_user-系统用户');
             $table->string('source_id', 32)->default('')->comment("发送方编号，如 user.id");
             $table->string('last_message_type')->comment("最近一次消息类型：chat-单聊、notice-通知");
             $table->string('last_message_id')->comment("最近一次消息类型id，如：chat.id");

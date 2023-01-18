@@ -3,7 +3,6 @@
 namespace App\Websocket\Controllers\Friend;
 
 use App\Exceptions\ForbiddenException;
-use App\Exceptions\ResourceException;
 use App\Models\Chat\ChatSession;
 use App\Models\Friend\Friend;
 use App\Models\Friend\FriendRequest;
@@ -21,75 +20,162 @@ use Throwable;
 class FriendRequestController extends Controller
 {
     /**
-     * 发送请求
+     * 创建
      *
      * @param Request $request
      * @return JsonResponse
-     * @throws ForbiddenException
-     * @throws ResourceException
      * @throws Throwable
      */
     public function store(Request $request): JsonResponse
     {
-        $params = $request->only(['friend_id']);
         $user = $request->user();
+        $params = $request->only(['friend_id', 'remark']);
+        $friend = User::findOrFail($params['friend_id']);
 
-        $friendUser = User::where('id', $params['friend_id'])->first();
-        if (!$friendUser) {
-            throw new ResourceException("用户不存在");
-        }
-        if ($user->id === $friendUser->id) {
-            throw new ForbiddenException("无需添加自己");
-        }
-
-        // 判断是否有该好友
-        $friend = Friend::where('friend_type', 'user')->where('friend_id', $friendUser->id)->first();
-        if ($friend) {
-            throw new ForbiddenException("已添加");
-        }
-
-        // 判断是否已发送请求
-        $friendRequest = FriendRequest::where('friend_type', 'user')
-            ->where('friend_id', $friendUser->id)
-            ->where('state', 10)
-            ->first();
-        if ($friendRequest) {
-            throw new ForbiddenException("请勿频繁发送请求");
-        }
+        // 消息数据
+        $noticeData = [
+            [
+                'user_id'     => $friend->id,
+                'content'     => "{$user->nickname} 请求添加你为好友"
+            ],
+            [
+                'user_id'     => $user->id,
+                'content'     => "你向 {$user->nickname} 发起了好友请求"
+            ]
+        ];
 
         DB::beginTransaction();
         try {
-            // 发送请求
+            // 创建请求
             $friendRequest = FriendRequest::create([
-                'user_id'       => $user->id,
-                'friend_type'   => 'user',
-                'friend_id'     => $friendUser->id
+                'user_id'   => $user->id,
+                'friend_id' => $friend->id,
+                'remark'    => $params['remark'] ?? ''
             ]);
 
-            // 发送好友请求通知
-            $notice = Notice::create([
-                'user_id'       => $friendUser->id,
-                'source_type'   => 'friend_request',
-                'source_id'     => $friendRequest->id,
-                'content'       => "{$user->nickname} 请求添加你为好友"
-            ]);
+            // 发送通知
+            $notices = $friendRequest->notices()->createMany($noticeData);
 
-            // 创建接收方会话
-            ChatSession::create([
-                'user_id'           => $friendUser->id,
-                'source_type'       => 'friend_request',
-                'source_id'         => $friendRequest->id,
-                'last_message_type' => 'notice',
-                'last_message_id'   => $notice->id
-            ]);
+            // 创建会话
+            foreach ($notices as $notice) {
+                ChatSession::updateOrCreate([
+                    'user_id'           => $notice->user_id,
+                    'source_type'       => 'system_user',
+                    'source_id'         => 1
+                ], [
+                    'last_message_type' => 'notice',
+                    'last_message_id'   => $notice->id
+                ]);
+            }
+
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
-            if ((int) $e->getCode() !== 23000) {
-                throw $e;
-            }
+            throw $e;
         }
 
-        return $this->response(message: "已发送好友请求");
+        return $this->response();
+    }
+
+    /**
+     * 审核
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     * @throws Throwable
+     */
+    public function examine(Request $request, int $id): JsonResponse
+    {
+        $params = $request->only(['state', 'reason']);
+        $user = $request->user();
+        $friendRequest = FriendRequest::with(['user', 'friend'])->where('friend_id', $user->id)->findOrFail($id);
+
+        if ($friendRequest->state !== 0) {
+            throw new ForbiddenException("会话已过期");
+        }
+
+        // 审核数据
+        $friendRequest->state = $params['state'];
+        $friendRequest->reason = $params['reason'] ?? '';
+
+        $word = $params['state'] === 10 ? "同意" : "拒绝";
+
+        // 消息数据
+        $noticeData = [
+            [
+                'source_type'   => 'friend_request',
+                'source_id'     => $friendRequest->id,
+                'user_id'       => $friendRequest->user->id,
+                'content'       => "{$friendRequest->user->nickname} {$word}了你的请求"
+            ],
+            [
+                'source_type'   => 'friend_request',
+                'source_id'     => $friendRequest->id,
+                'user_id'       => $friendRequest->friend->id,
+                'content'       => "你{$word}了 {$friendRequest->friend->nickname} 的请求"
+            ]
+        ];
+
+        // 用户会话
+        $sessions = ChatSession::whereIn('user_id', [$friendRequest->user->id, $friendRequest->friend->id])
+            ->where('source_type', 'system_user')
+            ->where('source_id', '1')
+            ->get();
+
+        DB::beginTransaction();
+        try {
+            $friendRequest->save();
+
+            // 发送通知
+            $notices = $friendRequest->notices()->createMany($noticeData);
+
+            // 更新会话最新记录
+            foreach ($sessions as $session) {
+                foreach ($notices as $notice) {
+                    if ($session->user_id === $notice->user_id) {
+                        $session->last_message_id = $notice->id;
+                        $session->save();
+                        break;
+                    }
+                }
+            }
+
+            // 如果是同意则添加好友
+            if ((int) $params['state'] === 10) {
+                // 添加好友
+                Friend::create([
+                    'user_id'       => $friendRequest->user->id,
+                    'friend_type'   => 'user',
+                    'friend_id'     => $friendRequest->friend->id
+                ]);
+                Friend::create([
+                    'user_id'       => $friendRequest->friend->id,
+                    'friend_type'   => 'user',
+                    'friend_id'     => $friendRequest->user->id
+                ]);
+
+                // 创建会话
+                ChatSession::create([
+                    'user_id'       => $friendRequest->friend->id,
+                    'source_type'   => 'user',
+                    'source_id'     => $friendRequest->user->id
+                ]);
+                ChatSession::create([
+                    'user_id'       => $friendRequest->user->id,
+                    'source_type'   => 'user',
+                    'source_id'     => $friendRequest->friend->id
+                ]);
+
+                // 发送实时消息
+            }
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return $this->response();
     }
 }
