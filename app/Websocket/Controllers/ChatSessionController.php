@@ -23,7 +23,7 @@ class ChatSessionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $sessions = ChatSession::with(['source', 'lastMessage:id,content,created_at'])
+        $sessions = ChatSession::with(['source:id,avatar,nickname', 'lastMessage:id,content,created_at'])
             ->where('user_id', $user->id)
             ->get();
         return $this->response($sessions);

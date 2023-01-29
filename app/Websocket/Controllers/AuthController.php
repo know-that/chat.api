@@ -149,6 +149,7 @@ class AuthController extends Controller
         $user = $request->user();
         return $this->response([
             'id'        => $user->id,
+            'account'   => $user->account,
             'nickname'  => $user->nickname,
             'gender'    => $user->gender,
             'avatar'    => $user->avatar
