@@ -2,12 +2,13 @@
 
 namespace App\Websocket\Controllers\Friend;
 
+use App\Enums\RelationEnum;
 use App\Exceptions\ForbiddenException;
 use App\Models\Chat\ChatSession;
-use App\Models\Friend\Friend;
 use App\Models\Friend\FriendRequest;
-use App\Models\Notice;
+use App\Models\Message\MessageText;
 use App\Models\User\User;
+use App\Services\FriendService;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,18 +33,6 @@ class FriendRequestController extends Controller
         $params = $request->only(['friend_id', 'remark']);
         $friend = User::findOrFail($params['friend_id']);
 
-        // 消息数据
-        $noticeData = [
-            [
-                'user_id'     => $friend->id,
-                'content'     => "{$user->nickname} 请求添加你为好友"
-            ],
-            [
-                'user_id'     => $user->id,
-                'content'     => "你向 {$user->nickname} 发起了好友请求"
-            ]
-        ];
-
         DB::beginTransaction();
         try {
             // 创建请求
@@ -53,20 +42,26 @@ class FriendRequestController extends Controller
                 'remark'    => $params['remark'] ?? ''
             ]);
 
+            // 创建消息
+            $messageText = MessageText::create([
+                'content'     => "{$user->nickname} 请求添加你为好友"
+            ]);
+
             // 发送通知
-            $notices = $friendRequest->notices()->createMany($noticeData);
+            $chatNotice = $messageText->notice()->create([
+                'user_id'       => $friend->id,
+                'source_type'   => RelationEnum::FriendRequest->getName(),
+                'source_id'     => $friendRequest->id
+            ]);
 
             // 创建会话
-            foreach ($notices as $notice) {
-                ChatSession::updateOrCreate([
-                    'user_id'           => $notice->user_id,
-                    'source_type'       => 'system_user',
-                    'source_id'         => 1
-                ], [
-                    'last_message_type' => 'notice',
-                    'last_message_id'   => $notice->id
-                ]);
-            }
+            ChatSession::create([
+                'user_id'           => $friend->id,
+                'source_type'       => RelationEnum::SystemUser->getName(),
+                'source_id'         => 2,
+                'last_chat_type'    => RelationEnum::ChatNotice->getName(),
+                'last_chat_id'      => $chatNotice->id
+            ]);
 
             DB::commit();
         } catch (Throwable $e) {
@@ -99,75 +94,19 @@ class FriendRequestController extends Controller
         $friendRequest->state = $params['state'];
         $friendRequest->reason = $params['reason'] ?? '';
 
-        $word = $params['state'] === 10 ? "同意" : "拒绝";
-
-        // 消息数据
-        $noticeData = [
-            [
-                'source_type'   => 'friend_request',
-                'source_id'     => $friendRequest->id,
-                'user_id'       => $friendRequest->user->id,
-                'content'       => "{$friendRequest->user->nickname} {$word}了你的请求"
-            ],
-            [
-                'source_type'   => 'friend_request',
-                'source_id'     => $friendRequest->id,
-                'user_id'       => $friendRequest->friend->id,
-                'content'       => "你{$word}了 {$friendRequest->friend->nickname} 的请求"
-            ]
-        ];
-
-        // 用户会话
-        $sessions = ChatSession::whereIn('user_id', [$friendRequest->user->id, $friendRequest->friend->id])
-            ->where('source_type', 'system_user')
-            ->where('source_id', '1')
-            ->get();
 
         DB::beginTransaction();
         try {
             $friendRequest->save();
 
-            // 发送通知
-            $notices = $friendRequest->notices()->createMany($noticeData);
-
-            // 更新会话最新记录
-            foreach ($sessions as $session) {
-                foreach ($notices as $notice) {
-                    if ($session->user_id === $notice->user_id) {
-                        $session->last_message_id = $notice->id;
-                        $session->save();
-                        break;
-                    }
-                }
-            }
-
             // 如果是同意则添加好友
             if ((int) $params['state'] === 10) {
-                // 添加好友
-                Friend::create([
-                    'user_id'       => $friendRequest->user->id,
-                    'friend_type'   => 'user',
-                    'friend_id'     => $friendRequest->friend->id
-                ]);
-                Friend::create([
-                    'user_id'       => $friendRequest->friend->id,
-                    'friend_type'   => 'user',
-                    'friend_id'     => $friendRequest->user->id
-                ]);
-
-                // 创建会话
-                ChatSession::create([
-                    'user_id'       => $friendRequest->friend->id,
-                    'source_type'   => 'user',
-                    'source_id'     => $friendRequest->user->id
-                ]);
-                ChatSession::create([
-                    'user_id'       => $friendRequest->user->id,
-                    'source_type'   => 'user',
-                    'source_id'     => $friendRequest->friend->id
-                ]);
+                // 绑定好友关系
+                (new FriendService)->bind($friendRequest, $friendRequest->user, $friendRequest->friend);
 
                 // 发送实时消息
+            } else {
+                // 发送拒绝消息
             }
 
             DB::commit();

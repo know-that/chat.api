@@ -2,7 +2,10 @@
 
 namespace App\Websocket\Controllers;
 
+use App\Enums\RelationEnum;
 use App\Facades\ToolFacade;
+use App\Models\Chat\ChatSession;
+use App\Models\Message\MessageText;
 use App\Websocket\Requests\Auth\LoginRequest;
 use App\Websocket\Requests\Auth\RegisterRequest;
 use App\Enums\HTTPCodeEnum;
@@ -56,6 +59,28 @@ class AuthController extends Controller
                 'nickname'  => $nickname,
                 'password'  => Hash::make($params['password']),
             ]);
+
+            // 创建消息
+            $messageText = MessageText::create([
+                'content'     => "感谢您使用 KnowThat.chat ！🙏🙏🙏"
+            ]);
+
+            // 创建通知
+            $chatNotice = $messageText->notice()->create([
+                'user_id'       => $user->id,
+                'source_type'   => RelationEnum::SystemUser->getName(),
+                'source_id'     => 1,
+            ]);
+
+            // 创建会话列表
+            ChatSession::create([
+                'user_id'           => $user->id,
+                'source_type'       => RelationEnum::SystemUser->getName(),
+                'source_id'         => 1,
+                'last_chat_type'    => RelationEnum::ChatNotice->getName(),
+                'last_chat_id'      => $chatNotice->id
+            ]);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

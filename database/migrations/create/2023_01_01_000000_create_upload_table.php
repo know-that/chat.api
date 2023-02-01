@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFileUploadTable extends Migration
+class CreateUploadTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class CreateFileUploadTable extends Migration
      */
     public function up(): void
     {
-        Schema::create('file_upload', static function (Blueprint $table) {
+        Schema::create('upload', static function (Blueprint $table) {
             $table->bigIncrements('id')->comment("编号");
             $table->tinyInteger('from')->default(0)->comment('文件来源：0-本地、1-阿里云OSS');
             $table->string('marker', 50)->comment('文件流唯一标识');
@@ -28,7 +28,7 @@ class CreateFileUploadTable extends Migration
             $table->unique('marker');
         });
 
-        DB::statement('ALTER TABLE `file_upload` comment "文件表"');
+        DB::statement('ALTER TABLE `upload` comment "上传表"');
 
     }
 
@@ -39,6 +39,6 @@ class CreateFileUploadTable extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('file_upload');
+        Schema::dropIfExists('upload');
     }
 }

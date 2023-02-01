@@ -1,10 +1,10 @@
 <?php
 
 use App\Websocket\Controllers\AuthController;
-use App\Websocket\Controllers\ChatController;
-use App\Websocket\Controllers\ChatSessionController;
+use App\Websocket\Controllers\Chat\ChatSingleController;
+use App\Websocket\Controllers\Chat\ChatNoticeController;
+use App\Websocket\Controllers\Chat\ChatSessionController;
 use App\Websocket\Controllers\Friend\FriendRequestController;
-use App\Websocket\Controllers\NoticeController;
 use App\Websocket\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,7 +41,7 @@ Route::name('websocket.')->group(function () {
         /**
          * 聊天
          */
-        Route::apiResource("chats", ChatController::class);
+        Route::apiResource("chat-single", ChatSingleController::class);
 
         /**
          * 会话列表
@@ -76,7 +76,7 @@ Route::name('websocket.')->group(function () {
         /**
          * 通知
          */
-        Route::apiResource('notices', NoticeController::class)->only(['index', 'show']);
+        Route::apiResource('chat-notices', ChatNoticeController::class)->only(['index', 'show']);
     });
 });
 

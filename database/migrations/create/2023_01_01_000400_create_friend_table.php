@@ -18,7 +18,7 @@ class CreateFriendTable extends Migration {
 		{
 			$table->bigIncrements('id');
             $table->char('user_id')->comment('用户编号，关联 user.id');
-            $table->string('friend_type')->default(1)->comment('好友类型：user-用户、group_chat-群聊、system-系统通知');
+            $table->string('friend_type', 32)->default(1)->comment('好友类型：user-用户、group_chat-群聊、system-系统通知');
             $table->string('friend_id', 32)->comment("好友编号，如 user.id");
             $table->dateTime('created_at')->useCurrent()->comment('创建时间');
             $table->dateTime('updated_at')->useCurrentOnUpdate()->comment('修改时间');

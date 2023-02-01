@@ -62,4 +62,47 @@ trait StringTrait
         preg_match_all($preg, $str ,$arr);
         return !empty($arr[0]);
     }
+
+    /**
+     * url 参数转数组
+     * @param string $url
+     * @return array
+     */
+    public function urlQueryToArray(string $url): array
+    {
+        $data = explode('&', parse_url($url, PHP_URL_QUERY));
+        $arr = [];
+        foreach ($data as $item) {
+
+            $itemData = explode('=', $item);
+            $arr[$itemData[0]] = $itemData[1];
+        }
+
+        return $arr;
+    }
+
+    /**
+     * 蛇形字符串转驼峰
+     *
+     * @param string $value
+     * @param bool $isFirstLowercase 是否首字母小写
+     * @return string
+     */
+    public function snakeToHump(string $value, bool $isFirstLowercase = false): string
+    {
+        $value = ucwords(str_replace(['_', '-'], ' ', $value));
+        $value = str_replace(' ', '', $value);
+        return lcfirst($value);
+    }
+
+    /**
+     * 驼峰字符串转蛇形
+     * @param string $value
+     * @return string
+     */
+    public function humpToSnake(string $value): string
+    {
+        $value = preg_replace('/\s+/u', '', $value);
+        return strtolower(preg_replace('/(.)(?=[A-Z])/u', "$1_", $value));
+    }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Chat\Chat;
+use App\Enums\RelationEnum;
+use App\Models\Chat\ChatSingle;
 use App\Models\Chat\ChatSession;
+use App\Models\Message\MessageText;
 use App\Models\User\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -31,37 +33,44 @@ class WebsocketService
         DB::beginTransaction();
         try {
             // 创建消息
-            $chat = Chat::create([
+            $messageText = MessageText::create([
+                'content'     => $message
+            ]);
+
+            // 创建单聊
+            $chatSingle = ChatSingle::create([
                 'receiver_user_id'  => $senderUser->id,
                 'sender_user_id'    => $receiverUser->id,
-                'content'           => $message
+                'message_type'      => RelationEnum::MessageText->getName(),
+                'message_id'        => $messageText->id
             ]);
 
             // 创建发送方会话
             ChatSession::updateOrcreate([
                 'user_id'       => $senderUser->id,
-                'source_type'   => 'user',
+                'source_type'   => RelationEnum::User->getName(),
                 'source_id'     => $receiverUser->id
             ],[
-                'last_message_type' => 'chat',
-                'last_message_id'   => $chat->id
+                'last_chat_type' => RelationEnum::ChatSingle->getName(),
+                'last_chat_id'   => $chatSingle->id
             ]);
 
             // 创建接收方会话
             ChatSession::updateOrcreate([
                 'user_id'       => $receiverUser->id,
-                'source_type'   => 'user',
+                'source_type'   => RelationEnum::User->getName(),
                 'source_id'     => $senderUser->id
             ], [
-                'last_message_type' => 'chat',
-                'last_message_id'   => $chat->id
+                'last_chat_type' => RelationEnum::ChatSingle->getName(),
+                'last_chat_id'   => $chatSingle->id
             ]);
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
-
             throw $e;
         }
+
+        $chatSingle->load('message');
 
         try {
             // 如果用户在线则发送消息
@@ -69,12 +78,12 @@ class WebsocketService
                 (new Client())->request('post', 'http://127.0.0.1:9502', [
                     'form_params' => [
                         'receiver_fd'   => $receiverFd,
-                        'message'       => $chat->toJson()
+                        'message'       => $chatSingle->toJson()
                     ]
                 ]);
             }
         } catch (RequestException $e) {
         }
-        return $chat;
+        return $chatSingle;
     }
 }

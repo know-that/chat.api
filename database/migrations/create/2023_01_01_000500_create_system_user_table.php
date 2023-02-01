@@ -18,8 +18,8 @@ class CreateSystemUserTable extends Migration {
 		{
 			$table->bigIncrements('id');
             $table->tinyInteger('type')->default(1)->comment('好友类型：1-公告通知、2-好友请求');
-            $table->string('nickname')->comment("名称");
-            $table->string('avatar')->comment("头像");
+            $table->string('nickname')->default('')->comment("名称");
+            $table->string('avatar')->default('')->comment("头像");
             $table->dateTime('created_at')->useCurrent()->comment('创建时间');
             $table->dateTime('updated_at')->useCurrentOnUpdate()->comment('修改时间');
             $table->dateTime('deleted_at')->nullable()->comment('删除时间');

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\RelationEnum;
 use App\Models\User\User;
 use App\Services\TestService;
 use Illuminate\Console\Command;
@@ -39,6 +40,7 @@ class TestCommand extends Command
      */
     public function handle(): void
     {
+        dd(RelationEnum::ChatSingle->name);
         dump(Auth::login(User::find(1)));
         dump(Auth::login(User::find(2)));
     }
