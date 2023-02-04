@@ -33,7 +33,7 @@ class ChatNoticeController extends Controller
                 'source' => function (MorphTo $query) {
                     $query->constrain([
                         FriendRequest::class => function ($query) {
-                            $query->with('friend')->selectRaw('id, friend_type, friend_id, remark, state, reason, created_at');
+                            $query->with('user')->selectRaw('id, user_id, remark, state, reason, created_at');
                         },
                         SystemUser::class => function ($query) {
                             $query->selectRaw('id, type, nickname, avatar');
@@ -48,7 +48,7 @@ class ChatNoticeController extends Controller
             $notices->where('source_type', $params['source_type']);
         }
 
-        $notices = $notices->orderBy('id', 'desc')->paginate($params['limit'] ?? 15);
+        $notices = $notices->orderBy('id', 'desc')->paginate($params['limit'] ?? 10);
 
         return $this->response($notices);
     }

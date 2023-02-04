@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use \Exception;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -56,6 +57,7 @@ class AuthController extends Controller
         try {
             $user = User::create([
                 'account'   => $params['account'],
+                'avatar'    => "https://api.multiavatar.com/" .Str::random(32). ".svg",
                 'nickname'  => $nickname,
                 'password'  => Hash::make($params['password']),
             ]);

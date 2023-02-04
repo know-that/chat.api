@@ -64,21 +64,22 @@ class FriendService
             ]);
 
             // 创建会话
-            ChatSession::create([
+            ChatSession::updateOrCreate([
                 'user_id'           => $user->id,
                 'source_type'       => RelationEnum::User->getName(),
-                'source_id'         => $friend->id,
+                'source_id'         => $friend->id
+            ], [
                 'last_chat_type'    => RelationEnum::ChatSingle->getName(),
                 'last_chat_id'      => $userChatSingle->id
             ]);
-            ChatSession::create([
+            ChatSession::updateOrCreate([
                 'user_id'           => $friend->id,
                 'source_type'       => RelationEnum::User->getName(),
-                'source_id'         => $user->id,
+                'source_id'         => $user->id
+            ], [
                 'last_chat_type'    => RelationEnum::ChatSingle->getName(),
                 'last_chat_id'      => $friendChatSingle->id
             ]);
-
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();

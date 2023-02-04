@@ -36,8 +36,8 @@ class ChatSingleController extends Controller
                 $query->where('receiver_user_id', $senderUser->id)->where('sender_user_id', $receiverUser->id);
             })
             ->orderBy('id', 'desc')
-            ->paginate(100);
-
+            ->paginate(10);
+        
         // 将所有消息标记已读
         (new MessageService)->chatSingleRead($senderUser, $chats->items());
 

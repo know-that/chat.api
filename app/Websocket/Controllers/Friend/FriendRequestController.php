@@ -2,6 +2,7 @@
 
 namespace App\Websocket\Controllers\Friend;
 
+use App\Enums\Model\FriendRequestStateEnum;
 use App\Enums\RelationEnum;
 use App\Exceptions\ForbiddenException;
 use App\Models\Chat\ChatSession;
@@ -33,6 +34,17 @@ class FriendRequestController extends Controller
         $params = $request->only(['friend_id', 'remark']);
         $friend = User::findOrFail($params['friend_id']);
 
+        // 判断此用户是否已发送请求（非原子性）
+        $friendRequest = FriendRequest::where('user_id', $user->id)->where('friend_id', $friend->id)->orderBy('id', 'desc')->first();
+        if ($friendRequest) {
+            if ($friendRequest->state === FriendRequestStateEnum::Waiting->value) {
+                throw new ForbiddenException("您已发起过好友请求");
+            }
+            if ($friendRequest->state === FriendRequestStateEnum::Agreed->value) {
+                throw new ForbiddenException("该用户已经是你的好友或已同意你的好友请求");
+            }
+        }
+
         DB::beginTransaction();
         try {
             // 创建请求
@@ -55,10 +67,11 @@ class FriendRequestController extends Controller
             ]);
 
             // 创建会话
-            ChatSession::create([
+            ChatSession::updateOrCreate([
                 'user_id'           => $friend->id,
                 'source_type'       => RelationEnum::SystemUser->getName(),
-                'source_id'         => 2,
+                'source_id'         => 2
+            ], [
                 'last_chat_type'    => RelationEnum::ChatNotice->getName(),
                 'last_chat_id'      => $chatNotice->id
             ]);
@@ -94,13 +107,12 @@ class FriendRequestController extends Controller
         $friendRequest->state = $params['state'];
         $friendRequest->reason = $params['reason'] ?? '';
 
-
         DB::beginTransaction();
         try {
             $friendRequest->save();
 
             // 如果是同意则添加好友
-            if ((int) $params['state'] === 10) {
+            if ((int) $params['state'] === FriendRequestStateEnum::Agreed->value) {
                 // 绑定好友关系
                 (new FriendService)->bind($friendRequest, $friendRequest->user, $friendRequest->friend);
 
