@@ -14,7 +14,7 @@ $ sudo supervisorctl update
 
 # 启动服务
 $ sudo supervisorctl start chat-octane:*
-$ sudo supervisorctl stop chat-websocket:*
+$ sudo supervisorctl stop chat-octane:*
 
 # 服务状态
 $ sudo supervisorctl status
@@ -23,9 +23,9 @@ $ sudo supervisorctl status
 
 ```bash
 # octane swoole 服务
-[program:knowthat-octane]
+[program:chat-octane]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /usr/share/nginx/html/chat/chat.api/artisan octane:start --workers=4 --task-workers=6 --max-requests=500
+command=/usr/bin/php /usr/share/nginx/html/chat/chat.api/artisan octane:start --port=8001 --workers=4 --task-workers=6 --max-requests=500
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -37,7 +37,7 @@ stdout_logfile=/usr/share/nginx/html/chat/chat.api/storage/logs/supervisord/octa
 stopwaitsecs=3600
 
 # swoole websocket
-[program:knowthat-octane]
+[program:chat-octane]
 process_name=%(program_name)s_%(process_num)02d
 command=/usr/bin/php /usr/share/nginx/html/chat/chat.api/artisan websocket:start
 autostart=true

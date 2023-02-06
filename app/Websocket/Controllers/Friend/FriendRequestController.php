@@ -34,6 +34,10 @@ class FriendRequestController extends Controller
         $params = $request->only(['friend_id', 'remark']);
         $friend = User::findOrFail($params['friend_id']);
 
+        if ($friend->id === $user->id) {
+            throw new ForbiddenException("无需添加自己为好友");
+        }
+
         // 判断此用户是否已发送请求（非原子性）
         $friendRequest = FriendRequest::where('user_id', $user->id)->where('friend_id', $friend->id)->orderBy('id', 'desc')->first();
         if ($friendRequest) {
