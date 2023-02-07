@@ -17,7 +17,7 @@ class CreateUserTable extends Migration {
 		Schema::create('user', static function(Blueprint $table)
 		{
 			$table->string('id', 32);
-			$table->string('account', 16)->default('')->comment('账号');
+			$table->string('account', 20)->default('')->comment('账号');
 			$table->string('password', 64)->default('')->comment('密码');
             $table->string('name', 20)->default('')->comment('姓名');
             $table->string('nickname', 20)->default('')->comment('昵称');
