@@ -41,12 +41,14 @@ php artisan octane:install
 npm install chokidar -D
 php artisan optimize:clear
 php artisan octane:start --watch
+php artisan websocket:start
 ```
 
 ### 生产
 ```sh
 php artisan optimize
 php artisan octane:start
+php artisan websocket:start
 ```
 
 #### nginx 配置参考
