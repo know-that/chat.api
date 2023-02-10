@@ -2,11 +2,11 @@
 
 namespace App\Websocket\Controllers\Chat;
 
-use App\Models\Chat\ChatNotice;
-use App\Models\Friend\Friend;
-use App\Models\Friend\FriendRequest;
-use App\Models\User\SystemUser;
-use App\Models\User\User;
+use App\Models\Chat\ChatNoticeModel;
+use App\Models\Friend\FriendModel;
+use App\Models\Friend\FriendRequestModel;
+use App\Models\User\SystemUserModel;
+use App\Models\User\UserModel;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
@@ -28,14 +28,14 @@ class ChatNoticeController extends Controller
         $user = $request->user();
         $params = $request->only(['source_type', 'limit']);
 
-        $notices = ChatNotice::query()
+        $notices = ChatNoticeModel::query()
             ->with([
                 'source' => function (MorphTo $query) {
                     $query->constrain([
-                        FriendRequest::class => function ($query) {
+                        FriendRequestModel::class => function ($query) {
                             $query->with('user')->selectRaw('id, user_id, remark, state, reason, created_at');
                         },
-                        SystemUser::class => function ($query) {
+                        SystemUserModel::class => function ($query) {
                             $query->selectRaw('id, type, nickname, avatar');
                         }
                     ]);
@@ -63,7 +63,7 @@ class ChatNoticeController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
-        $notice = ChatNotice::with([
+        $notice = ChatNoticeModel::with([
                 'source.user',
                 'source.friend'
             ])

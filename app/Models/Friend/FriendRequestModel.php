@@ -3,14 +3,14 @@
 namespace App\Models\Friend;
 
 use App\Models\BaseModel;
-use App\Models\Chat\ChatNotice;
-use App\Models\User\User;
+use App\Models\Chat\ChatNoticeModel;
+use App\Models\User\UserModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class FriendRequest extends BaseModel
+class FriendRequestModel extends BaseModel
 {
     protected $table = 'friend_request';
 
@@ -20,7 +20,7 @@ class FriendRequest extends BaseModel
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', 'id')->selectRaw('id, nickname, avatar, gender');
+        return $this->belongsTo(UserModel::class, 'user_id', 'id')->selectRaw('id, nickname, avatar, gender');
     }
 
     /**
@@ -29,6 +29,6 @@ class FriendRequest extends BaseModel
      */
     public function friend(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'friend_id', 'id')->selectRaw('id, nickname, avatar, gender');
+        return $this->belongsTo(UserModel::class, 'friend_id', 'id')->selectRaw('id, nickname, avatar, gender');
     }
 }

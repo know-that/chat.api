@@ -3,18 +3,18 @@
 namespace App\Services;
 
 use App\Enums\RelationEnum;
-use App\Models\User\User;
+use App\Models\User\UserModel;
 
 class MessageService
 {
     /**
      * 单聊消息已读
      *
-     * @param User $user
+     * @param UserModel $user
      * @param mixed $items
      * @return bool
      */
-    public function chatSingleRead(User $user, mixed $items): bool
+    public function chatSingleRead(UserModel $user, mixed $items): bool
     {
         $data = [];
         foreach ($items as $item) {

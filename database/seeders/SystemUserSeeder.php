@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Model\SystemUserTypeEnum;
-use App\Models\User\SystemUser;
+use App\Models\User\SystemUserModel;
 use Illuminate\Database\Seeder;
 
 /**
@@ -31,7 +31,7 @@ class SystemUserSeeder extends Seeder
             ]
         ];
         foreach ($data as $item) {
-            SystemUser::create($item);
+            SystemUserModel::create($item);
         }
     }
 }

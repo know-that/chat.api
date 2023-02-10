@@ -3,7 +3,7 @@
 namespace App\Websocket\Controllers;
 
 use App\Http\Controllers\Controller as HttpController;
-use App\Models\User\User;
+use App\Models\User\UserModel;
 use Illuminate\Support\Facades\Auth;
 use Swoole\Http\Request;
 use Swoole\Http\Response;

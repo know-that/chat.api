@@ -2,7 +2,7 @@
 
 namespace App\Websocket;
 
-use App\Models\User\User;
+use App\Models\User\UserModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Swoole\Http\Request;
@@ -48,8 +48,8 @@ class WebsocketHandler
     {
         try {
             $token = str_replace("Bearer ", "", $req->header['authorization'] ?? $req->get['token']);
-            $userId = Auth::guard('api')->setToken($token)->payload()->get('sub');
-            $user = User::findOrFail($userId);
+            $userId = Auth::guard('websocket')->setToken($token)->payload()->get('sub');
+            $user = UserModel::findOrFail($userId);
         } catch (\Throwable $e) {
             $this->disconnect("您尚未登录或者您的登录信息已失效");
             return;
@@ -85,8 +85,8 @@ class WebsocketHandler
      */
     public function request(Request $request, Response $response): void
     {
-        $fd = $request->post['receiver_fd'] ?? null;
-        $message = $request->post['message'] ?? null;
+        $fd = $request->post['fd'] ?? null;
+        $data = $request->post['data'] ?? null;
 
         if (empty($request->post) || empty($fd) && empty($message)) {
             return;
@@ -98,9 +98,7 @@ class WebsocketHandler
 
         $this->server->push(
             $fd,
-            json_encode(
-                ['message'=>$message]
-            )
+            json_encode($request->post)
         );
     }
 

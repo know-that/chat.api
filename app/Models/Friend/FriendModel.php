@@ -4,7 +4,7 @@ namespace App\Models\Friend;
 
 use App\Models\BaseModel;
 
-class Friend extends BaseModel
+class FriendModel extends BaseModel
 {
     protected $table = 'friend';
 }

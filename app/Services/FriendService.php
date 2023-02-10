@@ -3,11 +3,11 @@
 namespace App\Services;
 
 use App\Enums\RelationEnum;
-use App\Models\Chat\ChatSession;
-use App\Models\Friend\Friend;
-use App\Models\Friend\FriendRequest;
-use App\Models\Message\MessageText;
-use App\Models\User\User;
+use App\Models\Chat\ChatSessionModel;
+use App\Models\Friend\FriendModel;
+use App\Models\Friend\FriendRequestModel;
+use App\Models\Message\MessageTextModel;
+use App\Models\User\UserModel;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -16,32 +16,32 @@ class FriendService
     /**
      * 绑定好友关系
      *
-     * @param FriendRequest $friendRequest
-     * @param User $user
-     * @param User $friend
+     * @param FriendRequestModel $friendRequest
+     * @param UserModel $user
+     * @param UserModel $friend
      * @return bool
      * @throws Throwable
      */
-    public function bind(FriendRequest $friendRequest, User $user, User $friend): bool
+    public function bind(FriendRequestModel $friendRequest, UserModel $user, UserModel $friend): bool
     {
         $word = $friendRequest->state === 10 ? "同意" : "拒绝";
 
         DB::beginTransaction();
         try {
             // 创建好友关系
-            Friend::create([
+            FriendModel::create([
                 'user_id'       => $user->id,
                 'friend_type'   => 'user',
                 'friend_id'     => $friend->id
             ]);
-            Friend::create([
+            FriendModel::create([
                 'user_id'       => $friend->id,
                 'friend_type'   => 'user',
                 'friend_id'     => $user->id
             ]);
 
             // 创建会话消息
-            $userMessage = MessageText::create([
+            $userMessage = MessageTextModel::create([
                 'content'     => "{$friend->nickname} {$word}了你的请求"
             ]);
             $userChatSingle = $userMessage->chatSingle()->create([
@@ -52,7 +52,7 @@ class FriendService
                 'is_system'         => 1
             ]);
 
-            $friendMessage = MessageText::create([
+            $friendMessage = MessageTextModel::create([
                 'content'     => "你已添加用户 {$user->nickname}"
             ]);
             $friendChatSingle = $friendMessage->chatSingle()->create([
@@ -64,7 +64,7 @@ class FriendService
             ]);
 
             // 创建会话
-            ChatSession::updateOrCreate([
+            ChatSessionModel::updateOrCreate([
                 'user_id'           => $user->id,
                 'source_type'       => RelationEnum::User->getName(),
                 'source_id'         => $friend->id
@@ -72,7 +72,7 @@ class FriendService
                 'last_chat_type'    => RelationEnum::ChatSingle->getName(),
                 'last_chat_id'      => $userChatSingle->id
             ]);
-            ChatSession::updateOrCreate([
+            ChatSessionModel::updateOrCreate([
                 'user_id'           => $friend->id,
                 'source_type'       => RelationEnum::User->getName(),
                 'source_id'         => $user->id

@@ -2,7 +2,7 @@
 
 namespace App\Websocket\Controllers;
 
-use App\Models\User\User;
+use App\Models\User\UserModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,7 +20,7 @@ class UserController extends Controller
     public function search(Request $request): JsonResponse
     {
         $search = $request->input('search');
-        $user = User::where('account', $search)->first();
+        $user = UserModel::where('account', $search)->first();
 
         $list = $user ? [$user] : [];
 
@@ -36,7 +36,7 @@ class UserController extends Controller
     public function friends(Request $request): JsonResponse
     {
         $user = $request->user();
-        $users = User::whereNotIn('id', [$user->id])->withCount('notReadChats')->get();
+        $users = UserModel::whereNotIn('id', [$user->id])->withCount('notReadChats')->get();
         return $this->response($users);
     }
 }

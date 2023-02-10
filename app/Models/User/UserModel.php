@@ -4,7 +4,7 @@ namespace App\Models\User;
 
 use App\Enums\Model\UserGenderEnum;
 use App\Facades\ToolFacade;
-use App\Models\Chat\ChatSingle;
+use App\Models\Chat\ChatSingleModel;
 use App\Traits\Model\BootTrait;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as AuthUser;
 
-class User extends AuthUser implements JWTSubject
+class UserModel extends AuthUser implements JWTSubject
 {
     use HasFactory, BootTrait;
 
@@ -96,6 +96,6 @@ class User extends AuthUser implements JWTSubject
      */
     public function notReadChats(): HasMany
     {
-        return $this->hasMany(ChatSingle::class, 'receiver_user_id', 'id')->where('is_read', 0);
+        return $this->hasMany(ChatSingleModel::class, 'receiver_user_id', 'id')->where('is_read', 0);
     }
 }

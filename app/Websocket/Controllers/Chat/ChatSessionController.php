@@ -2,12 +2,12 @@
 
 namespace App\Websocket\Controllers\Chat;
 
-use App\Models\Chat\ChatNotice;
-use App\Models\Chat\ChatSession;
-use App\Models\Chat\ChatSingle;
-use App\Models\Message\MessageText;
-use App\Models\User\SystemUser;
-use App\Models\User\User;
+use App\Models\Chat\ChatNoticeModel;
+use App\Models\Chat\ChatSessionModel;
+use App\Models\Chat\ChatSingleModel;
+use App\Models\Message\MessageTextModel;
+use App\Models\User\SystemUserModel;
+use App\Models\User\UserModel;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,13 +26,13 @@ class ChatSessionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $sessions = ChatSession::with([
+        $sessions = ChatSessionModel::with([
                 'source' => function ($query) {
                     $query->constrain([
-                        User::class => function ($query) {
+                        UserModel::class => function ($query) {
                             $query->selectRaw('id, nickname, account, avatar, gender');
                         },
-                        SystemUser::class => function ($query) {
+                        SystemUserModel::class => function ($query) {
                             $query->selectRaw('id, type, nickname, avatar');
                         },
                     ]);
@@ -40,16 +40,16 @@ class ChatSessionController extends Controller
                 'lastChat' => function ($query) {
                     $query->with('message', function ($query) {
                             $query->constrain([
-                                MessageText::class => function ($query) {
+                                MessageTextModel::class => function ($query) {
                                     $query->selectRaw('id, type, content, is_read, created_at');
                                 },
                             ]);
                         })
                         ->constrain([
-                            ChatNotice::class => function ($query) {
+                            ChatNoticeModel::class => function ($query) {
                                 $query->selectRaw('id, user_id, source_type, source_id, message_type, message_id, created_at');
                             },
-                            ChatSingle::class => function ($query) {
+                            ChatSingleModel::class => function ($query) {
                                 $query->selectRaw('id, receiver_user_id, sender_user_id, message_type, message_id, created_at');
                             },
                         ]);

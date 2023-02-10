@@ -4,7 +4,7 @@ namespace App\Models\Message;
 
 use App\Models\BaseModel;
 
-class MessageFile extends BaseModel
+class MessageFileModel extends BaseModel
 {
     protected $table = 'message_file';
 }

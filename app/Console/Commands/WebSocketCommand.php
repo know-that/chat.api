@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User\User;
+use App\Models\User\UserModel;
 use App\Websocket\Controllers\WebSocketController;
 use App\Websocket\WebsocketHandler;
 use Closure;
