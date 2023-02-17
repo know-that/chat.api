@@ -8,6 +8,7 @@ use App\Services\TestService;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 class TestCommand extends Command
 {
@@ -40,7 +41,10 @@ class TestCommand extends Command
      */
     public function handle(): void
     {
-        dd("false" ?: 1);
+        // $command = 'bf.add users 2';
+        // dd(Redis::client()->rawCommand(...explode(' ', $command)));
+
+        dd(Redis::client()->rawCommand('bf.info', 'users'));
 
         dd(RelationEnum::ChatSingle->name);
         dump(Auth::login(UserModel::find(1)));

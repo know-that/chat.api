@@ -3,6 +3,7 @@
 namespace App\Websocket;
 
 use App\Models\User\UserModel;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 use Swoole\Http\Request;
@@ -82,20 +83,18 @@ class WebsocketHandler
      * @param Request $request
      * @param Response $response
      * @return void
+     * @throws Exception
      */
     public function request(Request $request, Response $response): void
     {
         $fd = $request->post['fd'] ?? null;
-        $data = $request->post['data'] ?? null;
-
-        if (empty($request->post) || empty($fd) && empty($message)) {
-            return;
+        if (empty($request->post) || empty($fd)) {
+            throw new Exception("参数有误：" . json_encode($request->post));
         }
 
         if (!$this->server->isEstablished($fd)) {
             return;
         }
-
         $this->server->push(
             $fd,
             json_encode($request->post)

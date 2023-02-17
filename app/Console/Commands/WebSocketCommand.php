@@ -51,7 +51,6 @@ class WebSocketCommand extends Command
         $this->server->on('request', $this->callTo('request'));
 
         $this->server->start();
-
     }
 
     /**

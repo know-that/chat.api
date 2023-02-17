@@ -62,9 +62,6 @@ class ChatSingleController extends Controller
         $user = $request->user();
 
         $receiverUser = UserModel::findOrFail($params['user_id']);
-        if (!$receiverUser) {
-            throw new ForbiddenException("接收方不存在");
-        }
         if ($user->id === $receiverUser->id) {
             throw new ForbiddenException("请勿给自己发送消息");
         }

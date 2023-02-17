@@ -67,7 +67,7 @@ class ChatSingle implements SendSourceFactory
             $this->createBySelf($user, $chatSingle);
 
             // 创建接收方会话
-            $this->createByReceiver($this->receiverUser, $chatSingle);
+            $this->createByReceiver($user, $chatSingle);
 
             DB::commit();
         } catch (\Throwable $e) {
@@ -93,6 +93,7 @@ class ChatSingle implements SendSourceFactory
     protected function createBySelf(UserModel $user, ChatSingleModel $chatSingle): void
     {
         $chatSource = (new ChatSession)->payload([
+            'user_id'       => $user->id,
             'source_type'   => RelationEnum::User->getName(),
             'source_id'     => $this->receiverUser->id
         ],[
@@ -112,6 +113,7 @@ class ChatSingle implements SendSourceFactory
     protected function createByReceiver(UserModel $user, ChatSingleModel $chatSingle): void
     {
         $chatSource = (new ChatSession)->payload([
+            'user_id'       => $this->receiverUser->id,
             'source_type'   => RelationEnum::User->getName(),
             'source_id'     => $user->id
         ],[

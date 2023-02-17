@@ -5,10 +5,13 @@ namespace App\Websocket\Controllers\Friend;
 use App\Enums\Model\FriendRequestStateEnum;
 use App\Enums\RelationEnum;
 use App\Exceptions\ForbiddenException;
+use App\Facades\ChatFacade;
 use App\Models\Chat\ChatSessionModel;
 use App\Models\Friend\FriendRequestModel;
 use App\Models\Message\MessageTextModel;
 use App\Models\User\UserModel;
+use App\Services\Chat\ChatSession;
+use App\Services\Chat\ChatSingle;
 use App\Services\FriendService;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -71,7 +74,7 @@ class FriendRequestController extends Controller
             ]);
 
             // 创建会话
-            ChatSessionModel::updateOrCreate([
+            $chatSource = (new ChatSession)->payload([
                 'user_id'           => $friend->id,
                 'source_type'       => RelationEnum::SystemUser->getName(),
                 'source_id'         => 2
@@ -79,6 +82,7 @@ class FriendRequestController extends Controller
                 'last_chat_type'    => RelationEnum::ChatNotice->getName(),
                 'last_chat_id'      => $chatNotice->id
             ]);
+            ChatFacade::sendTo($friend, $chatSource);
 
             DB::commit();
         } catch (Throwable $e) {
@@ -102,7 +106,6 @@ class FriendRequestController extends Controller
         $params = $request->only(['state', 'reason']);
         $user = $request->user();
         $friendRequest = FriendRequestModel::with(['user', 'friend'])->where('friend_id', $user->id)->findOrFail($id);
-
         if ($friendRequest->state !== 0) {
             throw new ForbiddenException("会话已过期");
         }
@@ -118,11 +121,7 @@ class FriendRequestController extends Controller
             // 如果是同意则添加好友
             if ((int) $params['state'] === FriendRequestStateEnum::Agreed->value) {
                 // 绑定好友关系
-                (new FriendService)->bind($friendRequest, $friendRequest->user, $friendRequest->friend);
-
-                // 发送实时消息
-            } else {
-                // 发送拒绝消息
+                $chatSession = (new FriendService)->bind($friendRequest, $friendRequest->user, $friendRequest->friend);
             }
 
             DB::commit();
@@ -131,6 +130,6 @@ class FriendRequestController extends Controller
             throw $e;
         }
 
-        return $this->response();
+        return $this->response($chatSession ?? null);
     }
 }

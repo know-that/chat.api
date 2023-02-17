@@ -20,7 +20,7 @@ class WebsocketService
      * @return bool
      * @throws GuzzleException
      */
-    protected function send(UserModel $user, mixed $data, WebsocketMessageTypeEnum $type = WebsocketMessageTypeEnum::Chat): bool
+    public function send(UserModel $user, mixed $data, WebsocketMessageTypeEnum $type = WebsocketMessageTypeEnum::Chat): bool
     {
         // 如果用户不在线则跳过
         $userFd = Redis::get("web-socket:user_id:{$user->id}");
@@ -32,12 +32,12 @@ class WebsocketService
         try {
             (new Client())->request('post', 'http://127.0.0.1:9502', [
                 'form_params' => [
-                    'type'          => $type->value,
-                    'receiver_fd'   => $userFd,
-                    'data'          => $data
+                    'type'  => $type->value,
+                    'fd'    => $userFd,
+                    'data'  => $data
                 ]
             ]);
-        } catch (RequestException) {
+        } catch (RequestException $e) {
             return false;
         }
 
