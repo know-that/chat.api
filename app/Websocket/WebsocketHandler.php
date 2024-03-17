@@ -76,24 +76,24 @@ class WebsocketHandler
         }
     }
 
-    /**
-     * 接收请求
-     *
-     * @param Request $request
-     * @param Response $response
-     * @return void
-     */
-    public function request(Request $request, Response $response): void
-    {
+	/**
+	 * 接收请求
+	 *
+	 * @param Request  $request
+	 * @param Response $response
+	 * @return mixed
+	 */
+    public function request(Request $request, Response $response): mixed
+	{
         $fd = $request->post['receiver_fd'] ?? null;
         $message = $request->post['message'] ?? null;
 
         if (empty($request->post) || empty($fd) && empty($message)) {
-            return;
+            return 111;
         }
 
         if (!$this->server->isEstablished($fd)) {
-            return;
+            return 222;
         }
 
         $this->server->push(
