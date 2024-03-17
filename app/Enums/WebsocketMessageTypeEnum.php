@@ -10,5 +10,5 @@ enum WebsocketMessageTypeEnum: string
     use CollectTrait;
 
     case ChatSession = 'chat_session'; // 会话列表
-    case Chat = 'chat'; // 聊天
+    case Chat = 'chat_single'; // 聊天
 }
