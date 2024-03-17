@@ -82,10 +82,10 @@ class WebsocketHandler
      *
      * @param Request $request
      * @param Response $response
-     * @return mixed
+     * @return void
      * @throws Exception
      */
-    public function request(Request $request, Response $response): mixed
+    public function request(Request $request, Response $response): void
     {
         $fd = $request->post['fd'] ?? null;
         if (empty($request->post) || empty($fd)) {
