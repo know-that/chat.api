@@ -93,7 +93,7 @@ class WebsocketHandler
         }
 
         if (!$this->server->isEstablished($fd)) {
-            return 222;
+            return;
         }
         $this->server->push(
             $fd,
