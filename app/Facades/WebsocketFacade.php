@@ -2,16 +2,16 @@
 
 namespace App\Facades;
 
-use App\Models\User\User;
-use App\Services\WebsocketService;
-use Illuminate\Support\Facades\Facade;
+use App\Enums\WebsocketMessageTypeEnum;
+use App\Models\User\UserModel;
 use App\Services\ToolService;
+use App\Services\Websocket\WebsocketService;
+use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static bool send(User $senderUser, User $receiverUser, string $message)
+ * @method static bool send(UserModel $user, mixed $data, WebsocketMessageTypeEnum $type = WebsocketMessageTypeEnum::Chat)
  *
  * @see ToolService
- * @package App\Facades\AliYun
  */
 class WebsocketFacade extends Facade
 {

@@ -56,7 +56,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | User Providers
+    | UserModel Providers
     |--------------------------------------------------------------------------
     |
     | All authentication drivers have a user provider. This defines how the
@@ -74,7 +74,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\User\User::class,
+            'model' => \App\Models\User\UserModel::class,
         ],
 
         // 'users' => [
@@ -84,12 +84,12 @@ return [
 
         'api' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User\User::class,
+            'model' => App\Models\User\UserModel::class,
         ],
 
         'websocket' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User\User::class,
+            'model' => App\Models\User\UserModel::class,
         ]
     ],
 

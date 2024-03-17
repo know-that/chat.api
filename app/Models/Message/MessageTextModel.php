@@ -3,11 +3,11 @@
 namespace App\Models\Message;
 
 use App\Models\BaseModel;
-use App\Models\Chat\ChatNotice;
-use App\Models\Chat\ChatSingle;
+use App\Models\Chat\ChatNoticeModel;
+use App\Models\Chat\ChatSingleModel;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class MessageText extends BaseModel
+class MessageTextModel extends BaseModel
 {
     protected $table = 'message_text';
 
@@ -17,7 +17,7 @@ class MessageText extends BaseModel
      */
     public function notice(): MorphOne
     {
-        return $this->morphOne(ChatNotice::class, 'message');
+        return $this->morphOne(ChatNoticeModel::class, 'message');
     }
 
     /**
@@ -26,6 +26,6 @@ class MessageText extends BaseModel
      */
     public function chatSingle(): MorphOne
     {
-        return $this->morphOne(ChatSingle::class, 'message');
+        return $this->morphOne(ChatSingleModel::class, 'message');
     }
 }

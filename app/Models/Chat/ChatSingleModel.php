@@ -5,7 +5,7 @@ namespace App\Models\Chat;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class ChatSingle extends BaseModel
+class ChatSingleModel extends BaseModel
 {
     protected $table = 'chat_single';
 

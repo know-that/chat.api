@@ -19,7 +19,6 @@ use App\Services\ToolService;
  * @method static void iterableForget(iterable &$iterable, string $key)
  *
  * @see ToolService
- * @package App\Facades\AliYun
  */
 class ToolFacade extends Facade
 {

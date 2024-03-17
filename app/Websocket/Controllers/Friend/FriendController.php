@@ -3,8 +3,8 @@
 namespace App\Websocket\Controllers\Friend;
 
 use App\Exceptions\ResourceException;
-use App\Models\Friend\Friend;
-use App\Models\User\User;
+use App\Models\Friend\FriendModel;
+use App\Models\User\UserModel;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

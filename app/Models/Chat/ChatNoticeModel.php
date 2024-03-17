@@ -2,15 +2,14 @@
 
 namespace App\Models\Chat;
 
+use App\Enums\RelationEnum;
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ChatSession extends BaseModel
+class ChatNoticeModel extends BaseModel
 {
-    use SoftDeletes;
-
-    protected $table = 'chat_session';
+    protected $table = 'chat_notice';
 
     /**
      * 关联资源
@@ -22,12 +21,11 @@ class ChatSession extends BaseModel
     }
 
     /**
-     * 关联资源
+     * 关联消息
      * @return MorphTo
      */
-    public function lastChat(): MorphTo
+    public function message(): MorphTo
     {
         return $this->morphTo();
-
     }
 }

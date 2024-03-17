@@ -4,12 +4,12 @@ namespace App\Websocket\Controllers;
 
 use App\Enums\RelationEnum;
 use App\Facades\ToolFacade;
-use App\Models\Chat\ChatSession;
-use App\Models\Message\MessageText;
+use App\Models\Chat\ChatSessionModel;
+use App\Models\Message\MessageTextModel;
 use App\Websocket\Requests\Auth\LoginRequest;
 use App\Websocket\Requests\Auth\RegisterRequest;
 use App\Enums\HTTPCodeEnum;
-use App\Models\User\User;
+use App\Models\User\UserModel;
 use App\Exceptions\ErrorException;
 use App\Exceptions\ParameterException;
 use App\Exceptions\ForbiddenException;
@@ -47,7 +47,7 @@ class AuthController extends Controller
         $nickname = ToolFacade::strHidden($params['account']);
 
         // 检测账号是否被使用
-        $exists = User::where('account', $params['account'])->exists();
+        $exists = UserModel::where('account', $params['account'])->exists();
         if ($exists) {
             throw new ForbiddenException("账号 {$nickname} 已被使用！");
         }
@@ -55,7 +55,7 @@ class AuthController extends Controller
         // 创建用户
         DB::beginTransaction();
         try {
-            $user = User::create([
+            $user = UserModel::create([
                 'account'   => $params['account'],
                 'avatar'    => "https://api.multiavatar.com/" .Str::random(32). ".svg",
                 'nickname'  => $nickname,
@@ -63,7 +63,7 @@ class AuthController extends Controller
             ]);
 
             // 创建消息
-            $messageText = MessageText::create([
+            $messageText = MessageTextModel::create([
                 'content'     => "感谢您使用 KnowThat.chat ！🙏🙏🙏"
             ]);
 
@@ -75,7 +75,7 @@ class AuthController extends Controller
             ]);
 
             // 创建会话列表
-            ChatSession::create([
+            ChatSessionModel::create([
                 'user_id'           => $user->id,
                 'source_type'       => RelationEnum::SystemUser->getName(),
                 'source_id'         => 1,
@@ -90,7 +90,7 @@ class AuthController extends Controller
         }
 
         // 生成 token
-        $token = Auth::login($user);
+        $token = Auth::guard('websocket')->login($user);
         if (!$token) {
             throw new ErrorException();
         }
@@ -98,7 +98,7 @@ class AuthController extends Controller
         return $this->response([
             'access_token'  => $token,
             'token_type'    => 'bearer',
-            'expires_in'    => Auth::factory()->getTTL() * 60
+            'expires_in'    => Auth::guard('websocket')->factory()->getTTL() * 60
         ], "注册成功，已自动登录");
     }
 
@@ -115,7 +115,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $params = $request->only(['account', 'password']);
-        $user = User::where('account', $params['account'])->first();
+        $user = UserModel::where('account', $params['account'])->first();
         if (!$user) {
             throw new ParameterException("账号或密码错误");
         }
@@ -128,7 +128,7 @@ class AuthController extends Controller
             throw new AuthException("您已被封号，请联系管理员", code: HTTPCodeEnum::ErrorAccountAbnormal);
         }
 
-        $token = Auth::login($user);
+        $token = Auth::guard('websocket')->login($user);
         if (!$token) {
             throw new ErrorException();
         }
@@ -136,7 +136,7 @@ class AuthController extends Controller
         return $this->response([
             'access_token'  => $token,
             'token_type'    => 'bearer',
-            'expires_in'    => Auth::factory()->getTTL() * 60
+            'expires_in'    => Auth::guard('websocket')->factory()->getTTL() * 60
         ], "欢迎回家，亲爱的 {$user->nickname}");
     }
 
@@ -154,7 +154,7 @@ class AuthController extends Controller
         $nickname = ToolFacade::strHidden($params['account']);
 
         // 检测账号是否被使用
-        $user = User::where($registerType, $params['account'])->first();
+        $user = UserModel::where($registerType, $params['account'])->first();
         if (!$user) {
             throw new ForbiddenException("账号 {$nickname} 不存在！");
         }
@@ -192,7 +192,7 @@ class AuthController extends Controller
     public function refresh(): JsonResponse
     {
         try {
-            $data = Auth::refresh();
+            $data = Auth::guard('websocket')->refresh();
         } catch (Throwable) {
             throw new AuthException("登录信息已过期，请重新登录", code: HTTPCodeEnum::ErrorAuthRefreshToken);
         }
@@ -200,7 +200,7 @@ class AuthController extends Controller
         return $this->response([
             'access_token'  => $data,
             'token_type'    => 'bearer',
-            'expires_in'    => Auth::factory()->getTTL() * 60
+            'expires_in'    => Auth::guard('websocket')->factory()->getTTL() * 60
         ]);
     }
 
@@ -211,7 +211,7 @@ class AuthController extends Controller
      */
     public function logout(): JsonResponse
     {
-        Auth::logout();
+        Auth::guard('websocket')->logout();
         return $this->response();
     }
 }

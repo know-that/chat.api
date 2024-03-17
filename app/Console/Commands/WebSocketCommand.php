@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User\User;
+use App\Models\User\UserModel;
 use App\Websocket\Controllers\WebSocketController;
 use App\Websocket\WebsocketHandler;
 use Closure;
@@ -51,7 +51,6 @@ class WebSocketCommand extends Command
         $this->server->on('request', $this->callTo('request'));
 
         $this->server->start();
-
     }
 
     /**

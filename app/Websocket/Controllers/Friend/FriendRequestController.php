@@ -5,10 +5,13 @@ namespace App\Websocket\Controllers\Friend;
 use App\Enums\Model\FriendRequestStateEnum;
 use App\Enums\RelationEnum;
 use App\Exceptions\ForbiddenException;
-use App\Models\Chat\ChatSession;
-use App\Models\Friend\FriendRequest;
-use App\Models\Message\MessageText;
-use App\Models\User\User;
+use App\Facades\ChatFacade;
+use App\Models\Chat\ChatSessionModel;
+use App\Models\Friend\FriendRequestModel;
+use App\Models\Message\MessageTextModel;
+use App\Models\User\UserModel;
+use App\Services\Chat\ChatSession;
+use App\Services\Chat\ChatSingle;
 use App\Services\FriendService;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -32,14 +35,14 @@ class FriendRequestController extends Controller
     {
         $user = $request->user();
         $params = $request->only(['friend_id', 'remark']);
-        $friend = User::findOrFail($params['friend_id']);
+        $friend = UserModel::findOrFail($params['friend_id']);
 
         if ($friend->id === $user->id) {
             throw new ForbiddenException("无需添加自己为好友");
         }
 
         // 判断此用户是否已发送请求（非原子性）
-        $friendRequest = FriendRequest::where('user_id', $user->id)->where('friend_id', $friend->id)->orderBy('id', 'desc')->first();
+        $friendRequest = FriendRequestModel::where('user_id', $user->id)->where('friend_id', $friend->id)->orderBy('id', 'desc')->first();
         if ($friendRequest) {
             if ($friendRequest->state === FriendRequestStateEnum::Waiting->value) {
                 throw new ForbiddenException("您已发起过好友请求");
@@ -52,14 +55,14 @@ class FriendRequestController extends Controller
         DB::beginTransaction();
         try {
             // 创建请求
-            $friendRequest = FriendRequest::create([
+            $friendRequest = FriendRequestModel::create([
                 'user_id'   => $user->id,
                 'friend_id' => $friend->id,
                 'remark'    => $params['remark'] ?? ''
             ]);
 
             // 创建消息
-            $messageText = MessageText::create([
+            $messageText = MessageTextModel::create([
                 'content'     => "{$user->nickname} 请求添加你为好友"
             ]);
 
@@ -71,7 +74,7 @@ class FriendRequestController extends Controller
             ]);
 
             // 创建会话
-            ChatSession::updateOrCreate([
+            $chatSource = (new ChatSession)->payload([
                 'user_id'           => $friend->id,
                 'source_type'       => RelationEnum::SystemUser->getName(),
                 'source_id'         => 2
@@ -79,6 +82,7 @@ class FriendRequestController extends Controller
                 'last_chat_type'    => RelationEnum::ChatNotice->getName(),
                 'last_chat_id'      => $chatNotice->id
             ]);
+            ChatFacade::sendTo($friend, $chatSource);
 
             DB::commit();
         } catch (Throwable $e) {
@@ -101,8 +105,7 @@ class FriendRequestController extends Controller
     {
         $params = $request->only(['state', 'reason']);
         $user = $request->user();
-        $friendRequest = FriendRequest::with(['user', 'friend'])->where('friend_id', $user->id)->findOrFail($id);
-
+        $friendRequest = FriendRequestModel::with(['user', 'friend'])->where('friend_id', $user->id)->findOrFail($id);
         if ($friendRequest->state !== 0) {
             throw new ForbiddenException("会话已过期");
         }
@@ -118,11 +121,7 @@ class FriendRequestController extends Controller
             // 如果是同意则添加好友
             if ((int) $params['state'] === FriendRequestStateEnum::Agreed->value) {
                 // 绑定好友关系
-                (new FriendService)->bind($friendRequest, $friendRequest->user, $friendRequest->friend);
-
-                // 发送实时消息
-            } else {
-                // 发送拒绝消息
+                $chatSession = (new FriendService)->bind($friendRequest, $friendRequest->user, $friendRequest->friend);
             }
 
             DB::commit();
@@ -131,6 +130,6 @@ class FriendRequestController extends Controller
             throw $e;
         }
 
-        return $this->response();
+        return $this->response($chatSession ?? null);
     }
 }
