@@ -2,12 +2,13 @@
 
 namespace App\Facades;
 
+use App\Models\User\UserModel;
 use App\Services\ChatSessionService;
 use Illuminate\Support\Facades\Facade;
 use App\Services\ToolService;
 
 /**
- * @method static array relations()
+ * @method static array relations(UserModel $user)
  *
  * @see ToolService
  */

@@ -13,10 +13,12 @@ class ChatSessionService
 {
     /**
      * 默认关联关系
-     * @return array
+     *
+     * @param UserModel|null $user
+     * @return mixed
      */
     #[ArrayShape([])]
-    public function relations(): array
+    public function relations(UserModel $user = null): array
     {
         return [
             'source' => function ($query) {
@@ -29,11 +31,11 @@ class ChatSessionService
                     },
                 ]);
             },
-            'lastChat' => function ($query) {
-                $query->with('message', function ($query) {
+            'lastChat' => function ($query) use ($user) {
+                $query->with('message', function ($query) use($user) {
                     $query->constrain([
-                        MessageTextModel::class => function ($query) {
-                            $query->selectRaw('id, type, content, is_read, created_at');
+                        MessageTextModel::class => function ($query) use ($user) {
+                            $query->where('sender_user_id', $user->id)->selectRaw('id, type, content, is_read, created_at');
                         },
                     ]);
                 })

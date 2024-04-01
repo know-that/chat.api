@@ -52,7 +52,7 @@ class ChatSession implements SendSourceFactory
         $chatSession = ChatSessionModel::updateOrcreate($source, $this->lastChat);
 
         // 重新获取 chatSession 详情
-        $chatSession->load(ChatSessionFacade::relations());
+        $chatSession->load(ChatSessionFacade::relations($user));
 
         // 删除会话缓存
         Cache::delete("chat-sessions:{$user->id}");
