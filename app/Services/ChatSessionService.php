@@ -35,7 +35,7 @@ class ChatSessionService
                 $query->with('message', function ($query) use($user) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) use ($user) {
-                            $query->where('sender_user_id', $user->id)->selectRaw('id, type, content, is_read, created_at');
+                            $query->where('receiver_user_id', $user->id)->selectRaw('id, type, content, is_read, created_at');
                         },
                     ]);
                 })
