@@ -18,7 +18,7 @@ class MessageService
     {
         $data = [];
         foreach ($items as $item) {
-            if ((int) $item->message->is_read === 0 && $item->sender_user_id === (int) $user->id) {
+            if ((int) $item->message->is_read === 0 && $item->sender_user_id === $user->id) {
                 $data[$item['message_type']][] = $item['message_id'];
             }
         }
