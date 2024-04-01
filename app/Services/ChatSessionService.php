@@ -39,7 +39,7 @@ class ChatSessionService
                         },
                     ]);
                 })
-                ->where('receiver_user_id', $user->id)
+                ->where('sender_user_id', $user->id)
                 ->constrain([
                     ChatNoticeModel::class => function ($query) {
                         $query->selectRaw('id, user_id, source_type, source_id, message_type, message_id, created_at');
