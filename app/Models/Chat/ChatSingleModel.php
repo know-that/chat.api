@@ -9,6 +9,11 @@ class ChatSingleModel extends BaseModel
 {
     protected $table = 'chat_single';
 
+    protected $casts = [
+        'receiver_user_id'   => 'string',
+        'sender_user_id'   => 'string'
+    ];
+
     /**
      * 关联消息
      * @return MorphTo

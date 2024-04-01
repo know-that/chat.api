@@ -11,6 +11,10 @@ class ChatNoticeModel extends BaseModel
 {
     protected $table = 'chat_notice';
 
+    protected $casts = [
+        'user_id'   => 'string'
+    ];
+
     /**
      * 关联资源
      * @return MorphTo

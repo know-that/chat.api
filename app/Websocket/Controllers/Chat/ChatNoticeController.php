@@ -7,6 +7,7 @@ use App\Models\Friend\FriendModel;
 use App\Models\Friend\FriendRequestModel;
 use App\Models\User\SystemUserModel;
 use App\Models\User\UserModel;
+use App\Services\MessageService;
 use App\Websocket\Controllers\Controller;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +50,9 @@ class ChatNoticeController extends Controller
         }
 
         $notices = $notices->orderBy('id', 'desc')->paginate($params['limit'] ?? 10);
+
+        // 将所有消息标记已读
+        (new MessageService)->chatSingleRead($user, $notices->items());
 
         return $this->response($notices);
     }

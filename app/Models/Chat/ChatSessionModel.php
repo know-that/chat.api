@@ -12,6 +12,10 @@ class ChatSessionModel extends BaseModel
 
     protected $table = 'chat_session';
 
+    protected $casts = [
+        'user_id'   => 'string'
+    ];
+
     /**
      * 关联资源
      * @return MorphTo
