@@ -34,11 +34,12 @@ class ChatSessionService
             'lastChat' => function ($query) use ($user) {
                 $query->with('message', function ($query) use($user) {
                     $query->constrain([
-                        MessageTextModel::class => function ($query) use ($user) {
-                            $query->where('receiver_user_id', $user->id)->selectRaw('id, type, content, is_read, created_at');
+                        MessageTextModel::class => function ($query) {
+                            $query->selectRaw('id, type, content, is_read, created_at');
                         },
                     ]);
                 })
+                ->where('receiver_user_id', $user->id)
                 ->constrain([
                     ChatNoticeModel::class => function ($query) {
                         $query->selectRaw('id, user_id, source_type, source_id, message_type, message_id, created_at');
