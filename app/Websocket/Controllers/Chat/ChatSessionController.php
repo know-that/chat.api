@@ -24,15 +24,12 @@ class ChatSessionController extends Controller
     {
         $user = $request->user();
 
-        $sessions = Cache::get("chat-sessions:{$user->id}");
-        if (!$sessions) {
-            $sessions = ChatSessionModel::with(ChatSessionFacade::relations())
-                ->where('user_id', $user->id)
-                ->orderBy('top_at', 'desc')
-                ->orderBy('updated_at', 'desc')
-                ->get();
-            Cache::set("chat-sessions:{$user->id}", $sessions);
-        }
+        $sessions = ChatSessionModel::query()
+            ->with(ChatSessionFacade::relations())
+            ->where('user_id', $user->id)
+            ->orderBy('top_at', 'desc')
+            ->orderBy('updated_at', 'desc')
+            ->get();
 
         return $this->response($sessions);
     }

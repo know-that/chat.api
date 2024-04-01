@@ -12,6 +12,7 @@ use App\Websocket\Controllers\Controller;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * 通知
@@ -53,6 +54,8 @@ class ChatNoticeController extends Controller
 
         // 将所有消息标记已读
         (new MessageService)->chatSingleRead($user, $notices->items());
+
+        Cache::delete("chat-sessions:{$user->id}");
 
         return $this->response($notices);
     }

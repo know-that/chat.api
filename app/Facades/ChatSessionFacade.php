@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Facade;
 use App\Services\ToolService;
 
 /**
- * @method static array relations(UserModel $user)
+ * @method static array relations(UserModel $user = null)
  *
  * @see ToolService
  */

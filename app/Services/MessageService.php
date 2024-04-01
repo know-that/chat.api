@@ -30,8 +30,7 @@ class MessageService
                 $model = new $maps[$index];
                 $model->whereIn('id', $item)->update(['is_read'=>1]);
             }
-        } catch (\Throwable $e) {
-        }
+        } catch (\Throwable $e) {}
 
         return true;
     }
