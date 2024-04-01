@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Enums\RelationEnum;
 use App\Models\Chat\ChatNoticeModel;
+use App\Models\Chat\ChatSingleModel;
 use App\Models\User\UserModel;
-use App\Services\Chat\ChatSingle;
 
 class MessageService
 {
@@ -24,7 +24,7 @@ class MessageService
                 continue;
             }
 
-            if ($item instanceof ChatSingle && $item->sender_user_id === $user->id) {
+            if ($item instanceof ChatSingleModel && $item->sender_user_id === $user->id) {
                 $data[$item['message_type']][] = $item['message_id'];
                 continue;
             }
