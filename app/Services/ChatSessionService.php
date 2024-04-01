@@ -35,7 +35,7 @@ class ChatSessionService
                 if ($user) {
                     $query->where('sender_user_id', $user->id);
                 }
-            
+
                 $query->with('message', function ($query) use($user) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) {

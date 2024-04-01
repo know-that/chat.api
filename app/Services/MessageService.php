@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\RelationEnum;
+use App\Models\Chat\ChatNoticeModel;
 use App\Models\User\UserModel;
+use App\Services\Chat\ChatSingle;
 
 class MessageService
 {
@@ -18,7 +20,16 @@ class MessageService
     {
         $data = [];
         foreach ($items as $item) {
-            if ((int) $item->message->is_read === 0 && $item->sender_user_id === $user->id) {
+            if ((int) $item->message->is_read !== 0) {
+                continue;
+            }
+
+            if ($item instanceof ChatSingle && $item->sender_user_id === $user->id) {
+                $data[$item['message_type']][] = $item['message_id'];
+                continue;
+            }
+
+            if ($item instanceof ChatNoticeModel && $item->user_id === $user->id) {
                 $data[$item['message_type']][] = $item['message_id'];
             }
         }
