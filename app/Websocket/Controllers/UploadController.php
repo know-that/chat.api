@@ -4,7 +4,7 @@ namespace App\Websocket\Controllers;
 
 use App\Enums\Model\FileUploadFromEnum;
 use App\Services\AliYun\AliYunService;
-use App\Models\FileUpload;
+use App\Models\Upload;
 use App\Exceptions\ErrorException;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -52,7 +52,7 @@ class UploadController extends Controller
         $marker = strtoupper($params['etag']);
 
         // 写入数据库
-        $file = FileUpload::firstOrCreate(
+        $file = Upload::firstOrCreate(
             [
                 'marker' => $marker
             ],
