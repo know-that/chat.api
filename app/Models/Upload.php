@@ -20,7 +20,7 @@ class Upload extends Model
      */
     protected $guarded = [];
 
-    protected $table = 'file_upload';
+    protected $table = 'upload';
 
     /**
      * from_text 获取/访问器
