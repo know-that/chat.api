@@ -5,6 +5,7 @@ use App\Websocket\Controllers\Chat\ChatSingleController;
 use App\Websocket\Controllers\Chat\ChatNoticeController;
 use App\Websocket\Controllers\Chat\ChatSessionController;
 use App\Websocket\Controllers\Friend\FriendRequestController;
+use App\Websocket\Controllers\UploadController;
 use App\Websocket\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::name('websocket.')->group(function () {
+
+    /**
+     * 文件上传
+     */
+    // 上传凭证
+    Route::get('/uploads/ali-yun/credentials', [UploadController::class, 'credentials']);
+
+    // 上传回调
+    Route::get('/uploads/ali-yun/callback', [UploadController::class, 'callback']);
+
+
     /**
      * 授权
      */
