@@ -29,7 +29,7 @@ Route::name('websocket.')->group(function () {
     Route::get('/uploads/ali-yun/credentials', [UploadController::class, 'credentials']);
 
     // 上传回调
-    Route::get('/uploads/ali-yun/callback', [UploadController::class, 'callback']);
+    Route::any('/uploads/ali-yun/callback', [UploadController::class, 'callback']);
 
 
     /**
