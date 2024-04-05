@@ -7,18 +7,10 @@ namespace App\Enums\Model;
  */
 enum MessageFileTypeEnum: string
 {
-    case Jpg = 'jpg';
-    case Jpeg = 'jpeg';
-    case Png = 'png';
-    case Gif = 'gif';
+    case Image = 'image';
     case Video = 'video';
     case Audio = 'audio';
-    case Excel = 'excel';
-    case Word = 'word';
-    case Pdf = 'pdf';
-    case Txt = 'txt';
-    case Markdown = 'markdown';
-    case Other = '';
+    case File = 'file';
 
     /**
      * 枚举文本转换
@@ -28,18 +20,29 @@ enum MessageFileTypeEnum: string
     public function text(string $value = ''): string
     {
         return match ($this) {
-            self::Jpg,
-            self::Jpeg,
-            self::Png => '图片',
-            self::Gif => '动态表情',
+            self::Image => '图片',
             self::Video => '视频',
             self::Audio => '音频',
-            self::Excel => '表格',
-            self::Word => 'word文档',
-            self::Pdf => 'pdf文档',
-            self::Txt => 'txt文件',
-            self::Markdown => 'markdown文档',
-            self::Other => "{$value}文件"
+            self::File => "{$value}文件"
+        };
+    }
+
+    /**
+     * 根据后缀获取类型
+     *
+     * @param string $value
+     * @return string
+     */
+    public static function getTypeBySuffix(string $value = ''): string
+    {
+        return match ($value) {
+            UploadSuffixEnum::Jpeg->value,
+            UploadSuffixEnum::Jpg->value,
+            UploadSuffixEnum::Gif->value,
+            UploadSuffixEnum::Png->value => '图片',
+            UploadSuffixEnum::Mp4->value => '视频',
+            UploadSuffixEnum::Mp3->value => '音频',
+            default => "{$value}文件"
         };
     }
 }

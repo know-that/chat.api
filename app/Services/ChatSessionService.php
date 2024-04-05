@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Chat\ChatNoticeModel;
 use App\Models\Chat\ChatSingleModel;
+use App\Models\Message\MessageFileModel;
 use App\Models\Message\MessageTextModel;
 use App\Models\User\SystemUserModel;
 use App\Models\User\UserModel;
@@ -36,10 +37,13 @@ class ChatSessionService
                     $query->where('sender_user_id', $user->id);
                 }
 
-                $query->with('message', function ($query) use($user) {
+                $query->with('message', function ($query) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) {
                             $query->selectRaw('id, type, content, is_read, created_at');
+                        },
+                        MessageFileModel::class => function ($query) {
+                            $query->selectRaw('id, file_id, type, is_read, created_at');
                         },
                     ]);
                 })

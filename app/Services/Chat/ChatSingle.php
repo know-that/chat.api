@@ -2,11 +2,14 @@
 
 namespace App\Services\Chat;
 
+use App\Enums\Model\MessageFileTypeEnum;
+use App\Enums\Model\MessageTypeEnum;
 use App\Enums\RelationEnum;
+use App\Exceptions\ResourceException;
 use App\Facades\ChatFacade;
 use App\Facades\WebsocketFacade;
 use App\Models\Chat\ChatSingleModel as ChatSingleModel;
-use App\Models\Message\MessageTextModel;
+use App\Models\Upload;
 use App\Models\User\UserModel;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -20,22 +23,30 @@ class ChatSingle implements SendSourceFactory
     public UserModel $receiverUser;
 
     /**
-     * 消息类型
+     * 消息内容
      * @var string
      */
     public string $message;
 
     /**
+     * 消息类型
+     * @var MessageTypeEnum
+     */
+    public MessageTypeEnum $messageType;
+
+    /**
      * 设置发送参数
      *
      * @param UserModel $receiverUser
-     * @param string $message
+     * @param string    $message
+     * @param string    $messageType
      * @return $this
      */
-    public function payload(UserModel $receiverUser, string $message): static
+    public function payload(UserModel $receiverUser, string $message, string $messageType): static
     {
         $this->receiverUser = $receiverUser;
         $this->message = $message;
+        $this->messageType = MessageTypeEnum::tryFrom($messageType);
         return $this;
     }
 
@@ -48,18 +59,35 @@ class ChatSingle implements SendSourceFactory
      */
     public function create(UserModel $user): mixed
     {
+        $messageModelClass = $this->messageType->relation();
+        $messageModel = new $messageModelClass;
+
+        // 获取消息内容
+        if ($this->messageType === MessageTypeEnum::File) {
+            // 获取文件类型
+            $upload = Upload::query()->findOrNew($this->message);
+            if (!$upload->exists()) {
+                throw new ResourceException();
+            }
+
+            $messageData = [
+                'file_id'   => $upload->id,
+                'type'      => MessageFileTypeEnum::getTypeBySuffix($upload->suffix)
+            ];
+        } else {
+            $messageData = ['content'   => $this->message];
+        }
+
         DB::beginTransaction();
         try {
             // 创建消息
-            $messageText = MessageTextModel::create([
-                'content'     => $this->message
-            ]);
+            $messageText = $messageModel->create($messageData);
 
             // 创建单聊
             $chatSingle = ChatSingleModel::create([
                 'receiver_user_id'  => $user->id,
                 'sender_user_id'    => $this->receiverUser->id,
-                'message_type'      => RelationEnum::MessageText->getName(),
+                'message_type'      => $this->messageType->value,
                 'message_id'        => $messageText->id
             ]);
 
@@ -74,7 +102,6 @@ class ChatSingle implements SendSourceFactory
             DB::rollBack();
             throw $e;
         }
-
         $chatSingle->load('message');
 
         // 发送消息
