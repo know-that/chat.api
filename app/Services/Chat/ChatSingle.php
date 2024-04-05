@@ -9,6 +9,8 @@ use App\Exceptions\ResourceException;
 use App\Facades\ChatFacade;
 use App\Facades\WebsocketFacade;
 use App\Models\Chat\ChatSingleModel as ChatSingleModel;
+use App\Models\Message\MessageFileModel;
+use App\Models\Message\MessageTextModel;
 use App\Models\Upload;
 use App\Models\User\UserModel;
 use Illuminate\Support\Facades\DB;
@@ -102,7 +104,18 @@ class ChatSingle implements SendSourceFactory
             DB::rollBack();
             throw $e;
         }
-        $chatSingle->load('message');
+        $chatSingle->load([
+            'message' => function ($query) {
+                $query->constrain([
+                    MessageTextModel::class => function ($query) {
+                        $query->selectRaw('id, type, content, is_read, created_at');
+                    },
+                    MessageFileModel::class => function ($query) {
+                        $query->with(['upload:id,suffix,url'])->selectRaw('id, file_id, type, is_read, created_at');
+                    },
+                ]);
+            }
+        ]);
 
         // 发送消息
         WebsocketFacade::send($this->receiverUser, $chatSingle->toJson());

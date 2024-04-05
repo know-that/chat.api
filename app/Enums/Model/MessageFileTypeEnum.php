@@ -39,10 +39,10 @@ enum MessageFileTypeEnum: string
             UploadSuffixEnum::Jpeg->value,
             UploadSuffixEnum::Jpg->value,
             UploadSuffixEnum::Gif->value,
-            UploadSuffixEnum::Png->value => '图片',
-            UploadSuffixEnum::Mp4->value => '视频',
-            UploadSuffixEnum::Mp3->value => '音频',
-            default => "{$value}文件"
+            UploadSuffixEnum::Png->value => self::Image->value,
+            UploadSuffixEnum::Mp4->value => self::Video->value,
+            UploadSuffixEnum::Mp3->value => self::Audio->value,
+            default => self::File->value,
         };
     }
 }
