@@ -33,10 +33,6 @@ class ChatSessionService
                 ]);
             },
             'lastChat' => function ($query) use ($user) {
-                if ($user) {
-                    $query->where('sender_user_id', $user->id);
-                }
-
                 $query->with('message', function ($query) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) {
