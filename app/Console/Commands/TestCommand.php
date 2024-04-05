@@ -17,7 +17,7 @@ class TestCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'test:test';
+    protected $signature = 'app:test';
 
     /**
      * The console command description.
@@ -41,6 +41,8 @@ class TestCommand extends Command
      */
     public function handle(): void
     {
+
+        dd(pathinfo("QQ\u5f55\u5c4f20240317224859.mp4"));
         // $command = 'bf.add users 2';
         // dd(Redis::client()->rawCommand(...explode(' ', $command)));
 

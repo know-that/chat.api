@@ -48,8 +48,7 @@ class UploadController extends Controller
     public function callback(Request $request): JsonResponse
     {
         $params = $request->only(['bucket', 'etag', 'imageInfo_format', 'imageInfo_height', 'imageInfo_width', 'mimeType', 'object', 'size', 'origin_name']);
-
-        Log::error("callback:" . json_encode($request->all()));
+        $pathInfo = pathinfo($params['origin_name']);
 
         // 文件标识
         $marker = strtoupper($params['etag']);
@@ -64,7 +63,7 @@ class UploadController extends Controller
                 'marker'     => $marker,
                 'name'       => $params['origin_name'],
                 'mime'       => $params['mimeType'],
-                'suffix'     => $params['imageInfo_format'] ?? '',
+                'suffix'     => $pathInfo['extension'] ?? '',
                 'url'        => $params['object'],
                 'size'       => $params['size'],
                 'created_at' => date("Y-m-d H:i:s")
