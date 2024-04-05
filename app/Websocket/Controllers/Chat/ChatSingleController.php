@@ -40,7 +40,7 @@ class ChatSingleController extends Controller
                             $query->selectRaw('id, type, content, is_read, created_at');
                         },
                         MessageFileModel::class => function ($query) {
-                            $query->with(['upload:id,suffix,url'])->selectRaw('id, file_id, type, is_read, created_at');
+                            $query->with(['upload:id,suffix,mime,url'])->selectRaw('id, file_id, type, is_read, created_at');
                         },
                     ]);
                 }
