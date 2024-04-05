@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 
 /**
  * 文件上传
@@ -48,6 +49,8 @@ class UploadController extends Controller
     {
         $params = $request->only(['bucket', 'etag', 'imageInfo_format', 'imageInfo_height', 'imageInfo_width', 'mimeType', 'object', 'size', 'origin_name']);
 
+        Log::error("callback:" . json_encode($request->all()));
+
         // 文件标识
         $marker = strtoupper($params['etag']);
 
@@ -61,7 +64,7 @@ class UploadController extends Controller
                 'marker'     => $marker,
                 'name'       => $params['origin_name'],
                 'mime'       => $params['mimeType'],
-                'suffix'     => $params['imageInfo_format'],
+                'suffix'     => $params['imageInfo_format'] ?? '',
                 'url'        => $params['object'],
                 'size'       => $params['size'],
                 'created_at' => date("Y-m-d H:i:s")

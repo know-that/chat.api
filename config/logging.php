@@ -117,6 +117,12 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'ymd'    =>  [
+            'driver' => 'single',
+            'path' => storage_path('logs/laravel/'.date('Y/m/Y-m-d').'.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];
