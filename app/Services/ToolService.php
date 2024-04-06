@@ -17,4 +17,16 @@ class ToolService
         StringTrait,    // tree
         IterableTrait   // tree
         ;
+
+    /**
+     * 字节转可读size
+     * @param $bytes
+     * @return string
+     */
+    public function bytesToSize($bytes): string
+    {
+        $sizes = array('Bytes', 'KB', 'MB', 'GB', 'TB');
+        $i = (int) floor(log($bytes) / log(1024));
+        return round($bytes / pow(1024, $i), 2) . $sizes[$i];
+    }
 }

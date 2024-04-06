@@ -73,12 +73,6 @@ class UploadController extends Controller
             throw new ErrorException();
         }
 
-        return $this->response([
-            'id'     => $file->id,
-            'name'   => $file->name,
-            'mime'   => $params['mimeType'],
-            'suffix' => $params['imageInfo_format'],
-            'url'    => $file->url
-        ]);
+        return $this->response($file->setVisible(["id","name","suffix","mime","size","url"]));
     }
 }
