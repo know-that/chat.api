@@ -26,10 +26,10 @@ Route::name('websocket.')->group(function () {
      * 文件上传
      */
     // 上传凭证
-    Route::get('/uploads/ali-yun/credentials', [UploadController::class, 'credentials']);
+    Route::get('/uploads/credentials', [UploadController::class, 'credentials']);
 
     // 上传回调
-    Route::any('/uploads/ali-yun/callback', [UploadController::class, 'callback']);
+    Route::any('/uploads/callback', [UploadController::class, 'callback']);
 
 
     /**
