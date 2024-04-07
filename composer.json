@@ -18,6 +18,7 @@
         "mavinoo/laravel-batch": "^2.3",
         "overtrue/laravel-socialite": "^4.0",
         "php-open-source-saver/jwt-auth": "^2.0",
+        "qiniu/php-sdk": "^7.12",
         "swooletw/laravel-swoole": "^2.12"
     },
     "require-dev": {

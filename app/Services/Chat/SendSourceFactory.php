@@ -5,7 +5,7 @@ namespace App\Services\Chat;
 use App\Models\User\UserModel;
 
 /**
- * 所发送的资源契约
+ * 所发送的资源接口
  */
 interface SendSourceFactory
 {
