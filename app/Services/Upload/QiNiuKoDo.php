@@ -7,6 +7,7 @@ use App\Enums\Model\FileUploadFromEnum;
 use App\Exceptions\ErrorException;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 use Qiniu\Auth;
 
 class QiNiuKoDo implements AsyncUploadInterface
@@ -91,6 +92,7 @@ class QiNiuKoDo implements AsyncUploadInterface
         $host = Config::get('app.url');
 
         return [
+            'saveKey'   => $this->config['uploadPath'] . Str::uuid() . '$(ext)',
             'callbackUrl' => $host . ($params['callbackUrl'] ?? $this->config['callbackUrl']),
             'callbackBody' => '{"bucket":"$(bucket)","etag":"$(etag)","mimeType":"$(mimeType)","object":"$(key)","size":$(fsize),"origin_name":"$(fname)"}',
             'callbackBodyType' => 'application/json'
