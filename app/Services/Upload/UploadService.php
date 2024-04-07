@@ -21,7 +21,7 @@ class UploadService implements AsyncUploadInterface
      */
     public function __construct()
     {
-        $this->driver = new QiNiuKoDo();
+        $this->driver = new AliOSS();
     }
 
     /**
