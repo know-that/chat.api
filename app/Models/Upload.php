@@ -45,9 +45,10 @@ class Upload extends Model
      */
     public function url(): Attribute
     {
+        $self = $this;
         return new Attribute(
-            get: static function ($value) {
-                switch ($this->from) {
+            get: static function ($value) use ($self) {
+                switch ($self->from) {
                     case FileUploadFromEnum::QiNiu->value:
                         $url = Config::get('qi-niu.koDo.staticUrl')  . '/' . $value;
                         break;
