@@ -58,7 +58,7 @@ class QiNiuKoDo implements AsyncUploadInterface
         $marker = strtoupper($params['etag']);
 
         // 写入数据库
-        $file = Upload::firstOrCreate(
+        $file = Upload::updateOrCreate(
             [
                 'marker' => $marker
             ],
