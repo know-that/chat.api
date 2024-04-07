@@ -13,7 +13,8 @@ enum FileUploadFromEnum: int
 
     case Local = 0; // 本地
     case Other = 1; // 其他
-    case AliYunOss = 2; // 阿里云 oss
+    case AliYun = 2; // 阿里云 oss
+    case QiNiu = 3; // 七牛云 kodo
 
     /**
      * 枚举文本转换
@@ -24,7 +25,8 @@ enum FileUploadFromEnum: int
         return match ($this) {
             self::Local => '本地',
             self::Other => '其他',
-            self::AliYunOss => '阿里云 oss'
+            self::AliYun => '阿里云',
+            self::QiNiu => '七牛云',
         };
     }
 }

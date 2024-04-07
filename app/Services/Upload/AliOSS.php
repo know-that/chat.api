@@ -60,7 +60,7 @@ class AliOSS implements AsyncUploadInterface
                 'marker' => $marker
             ],
             [
-                'from'       => FileUploadFromEnum::AliYunOss->value,
+                'from'       => FileUploadFromEnum::AliYun->value,
                 'marker'     => $marker,
                 'name'       => $params['origin_name'],
                 'mime'       => $params['mimeType'],

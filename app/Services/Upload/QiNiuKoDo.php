@@ -3,6 +3,8 @@
 namespace App\Services\Upload;
 
 
+use App\Enums\Model\FileUploadFromEnum;
+use App\Exceptions\ErrorException;
 use App\Models\Upload;
 use Illuminate\Support\Facades\Config;
 use Qiniu\Auth;
@@ -42,12 +44,39 @@ class QiNiuKoDo implements AsyncUploadInterface
 
     /**
      * 回调
+     *
      * @param array $params
      * @return Upload
+     * @throws ErrorException
      */
     public function callback(array $params): Upload
     {
-        // TODO: Implement callback() method.
+        $pathInfo = pathinfo($params['origin_name']);
+
+        // 文件标识
+        $marker = strtoupper($params['etag']);
+
+        // 写入数据库
+        $file = Upload::firstOrCreate(
+            [
+                'marker' => $marker
+            ],
+            [
+                'from'       => FileUploadFromEnum::QiNiu->value,
+                'marker'     => $marker,
+                'name'       => $params['origin_name'],
+                'mime'       => $params['mimeType'],
+                'suffix'     => $pathInfo['extension'] ?? '',
+                'url'        => $params['object'],
+                'size'       => $params['size'],
+                'created_at' => date("Y-m-d H:i:s")
+            ]
+        );
+        if (!$file) {
+            throw new ErrorException("文件写入失败");
+        }
+
+        return $file;
     }
 
 
