@@ -13,6 +13,8 @@ return [
 
         "uploadPath" => env("QIU_NIU_KO_DO_UPLOAD_PATH", "chat/uploads/" . date("Y/m/d/")),
 
-        "callbackUrl" => env("QIU_NIU_KO_DO_UPLOAD_CALLBACK_URL")
+        "callbackUrl" => env("QIU_NIU_KO_DO_UPLOAD_CALLBACK_URL"),
+
+        "staticUrl" => env("QIU_NIU_KO_DO_STATIC_URL")
     ],
 ];

@@ -47,8 +47,21 @@ class Upload extends Model
     {
         return new Attribute(
             get: static function ($value) {
-                $isMatched = preg_match('/(https:\/\/|http:\/\/)/', $value);
-                return $isMatched ? $value : Config::get('app.asset_url')  . '/' . $value;
+                switch ($this->from) {
+                    case FileUploadFromEnum::QiNiu->value:
+                        $url = Config::get('qi-niu.koDo.staticUrl')  . '/' . $value;
+                        break;
+
+                    case FileUploadFromEnum::AliYun->value:
+                        $url = Config::get('ali-yun.OSS.staticUrl')  . '/' . $value;
+                        break;
+
+                    default:
+                        $isMatched = preg_match('/(https:\/\/|http:\/\/)/', $value);
+                        $url = $isMatched ? $value : Config::get('app.asset_url')  . '/' . $value;
+                        break;
+                }
+                return $url;
             }
         );
     }

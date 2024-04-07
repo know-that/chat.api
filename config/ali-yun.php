@@ -16,6 +16,7 @@ return [
         "endpoint"  => env('ALI_YUN_OSS_ENDPOINT', ''),
         "region"  => env('ALI_YUN_OSS_REGION', ''),
         "bucket"  => env('ALI_YUN_OSS_BUCKET', ''),
-        "uploadPath" => "chat/uploads/" . date("Y/m/d/")
+        "uploadPath" => "chat/uploads/" . date("Y/m/d/"),
+        "staticUrl" => env("ALI_YUN_OSS_STATIC_URL")
     ]
 ];
