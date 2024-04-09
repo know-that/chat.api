@@ -111,7 +111,7 @@ class ChatSingle implements SendSourceFactory
                         $query->selectRaw('id, type, content, is_read, created_at');
                     },
                     MessageFileModel::class => function ($query) {
-                        $query->with(['upload:id,name,suffix,mime,size,url'])->selectRaw('id, file_id, type, is_read, created_at');
+                        $query->with(['upload:id,from,name,suffix,mime,size,url'])->selectRaw('id, file_id, type, is_read, created_at');
                     },
                 ]);
             }

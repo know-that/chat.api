@@ -2,6 +2,7 @@
 
 namespace App\Services\Upload;
 
+use App\Exceptions\ErrorException;
 use App\Models\Upload;
 use App\Traits\InstanceTrait;
 use Exception;
@@ -21,7 +22,7 @@ class UploadService implements AsyncUploadInterface
      */
     public function __construct()
     {
-        $this->driver = new AliOSS();
+        $this->driver = new QiNiuKoDo();
     }
 
     /**
@@ -41,6 +42,7 @@ class UploadService implements AsyncUploadInterface
      * 回调
      * @param array $params
      * @return Upload
+     * @throws ErrorException
      */
     public function callback(array $params): Upload
     {
