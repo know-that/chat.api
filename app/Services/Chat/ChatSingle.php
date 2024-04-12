@@ -11,7 +11,7 @@ use App\Facades\WebsocketFacade;
 use App\Models\Chat\ChatSingleModel as ChatSingleModel;
 use App\Models\Message\MessageFileModel;
 use App\Models\Message\MessageTextModel;
-use App\Models\Upload;
+use App\Models\UploadModel;
 use App\Models\User\UserModel;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -67,7 +67,7 @@ class ChatSingle implements SendSourceFactory
         // 获取消息内容
         if ($this->messageType === MessageTypeEnum::File) {
             // 获取文件类型
-            $upload = Upload::query()->findOrNew($this->message);
+            $upload = UploadModel::query()->findOrNew($this->message);
             if (!$upload->exists()) {
                 throw new ResourceException();
             }

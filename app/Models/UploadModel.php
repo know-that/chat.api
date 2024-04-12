@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Config;
 
-class Upload extends Model
+class UploadModel extends Model
 {
     use HasFactory;
 

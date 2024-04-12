@@ -14,7 +14,7 @@ class UpdateMessageFileTable extends Migration {
 	public function up(): void
     {
         Schema::table('message_file', function (Blueprint $table) {
-            $table->string('type', 20)->after('file_id')->comment("文件类型：jpg、jpeg、png、gif、video、audio、excel、word、pdf、txt、markdown");
+            $table->string('type', 20)->after('file_id')->comment("文件类型：image、video、audio、file");
         });
     }
 
@@ -26,7 +26,7 @@ class UpdateMessageFileTable extends Migration {
     public function down(): void
     {
         Schema::table('message_file', function (Blueprint $table) {
-            $table->dropColumn('type');
+            $table->string('type', 20)->after('file_id')->comment("文件类型：jpg、jpeg、png、gif、video、audio、excel、word、pdf、txt、markdown");
         });
     }
 }

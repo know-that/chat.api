@@ -2,6 +2,7 @@
 
 namespace App\Websocket\Controllers\Chat;
 
+use App\Models\Chat\ChatGroupModel;
 use App\Models\Chat\ChatNoticeModel;
 use App\Models\Friend\FriendModel;
 use App\Models\Friend\FriendRequestModel;
@@ -53,7 +54,7 @@ class ChatNoticeController extends Controller
         $notices = $notices->orderBy('id', 'desc')->paginate($params['limit'] ?? 10);
 
         // 将所有消息标记已读
-        (new MessageService)->chatSingleRead($user, $notices->items());
+        ChatNoticeModel::query()->where('user_id', $user->id)->update(['is_read'=>1]);
 
         Cache::delete("chat-sessions:{$user->id}");
 

@@ -4,7 +4,7 @@ namespace App\Services\Upload;
 
 use App\Enums\Model\FileUploadFromEnum;
 use App\Exceptions\ErrorException;
-use App\Models\Upload;
+use App\Models\UploadModel;
 use App\Services\AliYun\AliYunService;
 use Exception;
 use Illuminate\Support\Facades\Config;
@@ -44,10 +44,10 @@ class AliOSS implements AsyncUploadInterface
      * 回调
      *
      * @param array $params
-     * @return Upload
+     * @return UploadModel
      * @throws ErrorException
      */
-    public function callback(array $params): Upload
+    public function callback(array $params): UploadModel
     {
         $pathInfo = pathinfo($params['origin_name']);
 
@@ -55,7 +55,7 @@ class AliOSS implements AsyncUploadInterface
         $marker = strtoupper($params['etag']);
 
         // 写入数据库
-        $file = Upload::firstOrCreate(
+        $file = UploadModel::firstOrCreate(
             [
                 'marker' => $marker
             ],

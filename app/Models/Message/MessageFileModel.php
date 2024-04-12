@@ -6,7 +6,7 @@ use App\Enums\Model\MessageFileTypeEnum;
 use App\Models\BaseModel;
 use App\Models\Chat\ChatNoticeModel;
 use App\Models\Chat\ChatSingleModel;
-use App\Models\Upload;
+use App\Models\UploadModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -43,7 +43,7 @@ class MessageFileModel extends BaseModel
      */
     public function upload(): BelongsTo
     {
-        return $this->belongsTo(Upload::class, 'file_id');
+        return $this->belongsTo(UploadModel::class, 'file_id');
     }
 
     /**

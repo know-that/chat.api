@@ -3,6 +3,8 @@
 namespace App\Traits\Tool;
 
 use Exception;
+use Godruoyi\Snowflake\LaravelSequenceResolver;
+use Godruoyi\Snowflake\Snowflake;
 use Illuminate\Support\Str;
 
 trait StringTrait
@@ -104,5 +106,22 @@ trait StringTrait
     {
         $value = preg_replace('/\s+/u', '', $value);
         return strtolower(preg_replace('/(.)(?=[A-Z])/u', "$1_", $value));
+    }
+
+    /**
+     * 雪花ID
+     *
+     * @param string $prefix
+     * @return string
+     * @throws Exception
+     */
+    public function snowId(string $prefix = ''): string
+    {
+        $snowflake = new Snowflake();
+        $id = $snowflake->setStartTimeStamp(strtotime('2023-01-01') * 1000)
+            ->setSequenceResolver(new LaravelSequenceResolver(app('cache')->store()))
+            ->id();
+
+        return "{$prefix}{$id}";
     }
 }

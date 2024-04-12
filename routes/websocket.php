@@ -1,10 +1,14 @@
 <?php
 
+use App\Models\Chat\ChatGroupModel;
 use App\Websocket\Controllers\AuthController;
+use App\Websocket\Controllers\Chat\ChatGroupController;
 use App\Websocket\Controllers\Chat\ChatSingleController;
 use App\Websocket\Controllers\Chat\ChatNoticeController;
 use App\Websocket\Controllers\Chat\ChatSessionController;
+use App\Websocket\Controllers\Friend\FriendController;
 use App\Websocket\Controllers\Friend\FriendRequestController;
+use App\Websocket\Controllers\GroupChatController;
 use App\Websocket\Controllers\UploadController;
 use App\Websocket\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,9 +55,14 @@ Route::name('websocket.')->group(function () {
      */
     Route::middleware('auth:websocket')->group(function () {
         /**
-         * 聊天
+         * 单聊
          */
         Route::apiResource("chat-single", ChatSingleController::class);
+
+        /**
+         * 群聊
+         */
+        Route::apiResource("chat-group", ChatGroupController::class);
 
         /**
          * 会话列表
@@ -75,7 +84,7 @@ Route::name('websocket.')->group(function () {
         /**
          * 好友
          */
-        Route::apiResource('friends', FriendRequestController::class);
+        Route::apiResource('friends', FriendController::class);
 
         /**
          * 好友请求
@@ -89,6 +98,12 @@ Route::name('websocket.')->group(function () {
          * 通知
          */
         Route::apiResource('chat-notices', ChatNoticeController::class)->only(['index', 'show']);
+
+        /**
+         * 群聊
+         */
+        Route::apiResource('group-chat', GroupChatController::class);
+
     });
 });
 

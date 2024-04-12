@@ -2,7 +2,7 @@
 
 namespace App\Services\Upload;
 
-use App\Models\Upload;
+use App\Models\UploadModel;
 use App\Models\User\UserModel;
 
 /**
@@ -19,7 +19,7 @@ interface AsyncUploadInterface
     /**
      * 回调
      * @param array $params
-     * @return Upload
+     * @return UploadModel
      */
-    public function callback(array $params): Upload;
+    public function callback(array $params): UploadModel;
 }

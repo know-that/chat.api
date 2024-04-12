@@ -3,7 +3,7 @@
 namespace App\Services\Upload;
 
 use App\Exceptions\ErrorException;
-use App\Models\Upload;
+use App\Models\UploadModel;
 use App\Traits\InstanceTrait;
 use Exception;
 
@@ -41,10 +41,10 @@ class UploadService implements AsyncUploadInterface
     /**
      * 回调
      * @param array $params
-     * @return Upload
+     * @return UploadModel
      * @throws ErrorException
      */
-    public function callback(array $params): Upload
+    public function callback(array $params): UploadModel
     {
         return $this->driver->callback($params);
     }

@@ -2,9 +2,11 @@
 
 namespace App\Enums;
 
+use App\Models\Chat\ChatGroupModel;
 use App\Models\Chat\ChatNoticeModel;
 use App\Models\Chat\ChatSingleModel;
 use App\Models\Friend\FriendRequestModel;
+use App\Models\Group\GroupChatModel;
 use App\Models\Message\MessageBusinessCardModel;
 use App\Models\Message\MessageFileModel;
 use App\Models\Message\MessageTextModel;
@@ -23,7 +25,9 @@ enum RelationEnum: string
     case FriendRequest = FriendRequestModel::class;
     case ChatNotice = ChatNoticeModel::class;
     case ChatSingle = ChatSingleModel::class;
+    case ChatGroup = ChatGroupModel::class;
     case MessageText = MessageTextModel::class;
     case MessageFile = MessageFileModel::class;
     case MessageBusinessCard = MessageBusinessCardModel::class;
+    case GroupChat = GroupChatModel::class;
 }

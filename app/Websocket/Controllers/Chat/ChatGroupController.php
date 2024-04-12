@@ -4,7 +4,9 @@ namespace App\Websocket\Controllers\Chat;
 
 use App\Exceptions\ForbiddenException;
 use App\Facades\ChatFacade;
+use App\Models\Chat\ChatGroupModel;
 use App\Models\Chat\ChatSingleModel;
+use App\Models\Group\GroupChatModel;
 use App\Models\Message\MessageFileModel;
 use App\Models\Message\MessageTextModel;
 use App\Models\User\UserModel;
@@ -19,7 +21,7 @@ use Throwable;
 /**
  * 聊天
  */
-class ChatSingleController extends Controller
+class ChatGroupController extends Controller
 {
     /**
      * 列表
@@ -29,11 +31,11 @@ class ChatSingleController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $receiverUserId = $request->input('receiver_user_id');
-        $receiverUser = UserModel::findOrFail($receiverUserId);
-        $senderUser = $request->user();
+        $groupChatId = $request->input('group_chat_id');
+        $groupChat = GroupChatModel::findOrFail($groupChatId);
+        $user = $request->user();
 
-        $chats = ChatSingleModel::with([
+        $chats = ChatGroupModel::with([
                 'message' => function ($query) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) {
@@ -45,19 +47,14 @@ class ChatSingleController extends Controller
                     ]);
                 }
             ])
-            ->where(function ($query) use ($receiverUser, $senderUser) {
-                $query->where('receiver_user_id', $receiverUser->id)->where('sender_user_id', $senderUser->id)->where('is_system', 0);
-            })
-            ->orWhere(function ($query) use ($receiverUser, $senderUser) {
-                $query->where('receiver_user_id', $senderUser->id)->where('sender_user_id', $receiverUser->id);
-            })
+            ->where('group_chat_id', $groupChat->id)
+            ->where('receiver_user_id', $user->id)
             ->orderBy('id', 'desc')
             ->paginate(10);
 
         // 将所有消息标记已读
-        ChatSingleModel::query()->where(function ($query) use ($receiverUser) {
-                $query->where('receiver_user_id', $receiverUser->id);
-            })
+        ChatGroupModel::query()->where('group_chat_id', $groupChat->id)
+            ->where('receiver_user_id', $user->id)
             ->update(['is_read'=>1]);
 
         return $this->response($chats);

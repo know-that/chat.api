@@ -4,7 +4,7 @@ namespace App\Services\AliYun\Trait;
 
 use App\Enums\Model\FileUploadFromEnum;
 use App\Exceptions\ErrorException;
-use App\Models\Upload;
+use App\Models\UploadModel;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -40,7 +40,7 @@ trait OSSAboutModelTrait
                 'size'          => $file->getSize(),
                 'created_at'    => date("Y-m-d H:i:s")
             ];
-            $fileModel = Upload::firstOrcreate(['marker' => $data['marker']], $data);
+            $fileModel = UploadModel::firstOrcreate(['marker' => $data['marker']], $data);
             if (!$fileModel->wasRecentlyCreated) {
                 return $fileModel;
             }
