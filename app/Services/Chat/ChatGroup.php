@@ -7,9 +7,12 @@ use App\Enums\Model\MessageTypeEnum;
 use App\Enums\RelationEnum;
 use App\Exceptions\ResourceException;
 use App\Facades\ChatFacade;
+use App\Facades\WebsocketFacade;
 use App\Models\Chat\ChatGroupModel;
 use App\Models\Group\GroupChatModel;
 use App\Models\Group\GroupChatUserModel;
+use App\Models\Message\MessageFileModel;
+use App\Models\Message\MessageTextModel;
 use App\Models\UploadModel;
 use App\Models\User\UserModel;
 use Illuminate\Support\Facades\DB;
@@ -62,14 +65,29 @@ class ChatGroup implements SendSourceFactory
     /**
      * 创建消息
      *
-     * @param UserModel $user 发送方
+     * @param UserModel $user
      * @return mixed
+     * @throws ResourceException
      * @throws Throwable
      */
     public function create(UserModel $user): mixed
     {
         $messageModelClass = $this->messageType->relation();
         $messageModel = new $messageModelClass;
+
+        $chatGroupRelations = [
+            'senderUser:id,nickname,account,avatar,gender',
+            'message' => function ($query) {
+                $query->constrain([
+                    MessageTextModel::class => function ($query) {
+                        $query->selectRaw('id, type, content, is_read, created_at');
+                    },
+                    MessageFileModel::class => function ($query) {
+                        $query->with(['upload:id,from,name,suffix,mime,size,url'])->selectRaw('id, file_id, type, is_read, created_at');
+                    },
+                ]);
+            }
+        ];
 
         // 获取消息内容
         if ($this->messageType === MessageTypeEnum::File) {
@@ -93,14 +111,26 @@ class ChatGroup implements SendSourceFactory
             $messageText = $messageModel->create($messageData);
 
             // 创建群聊消息
-            foreach ($this->groupChat->users as $groupChatUser) {
+            $first = null;
+            foreach ($this->groupChat->users as $index => $groupChatUser) {
                 $chatGroup = ChatGroupModel::create([
                     'group_chat_id'    => $this->groupChat->id,
                     'receiver_user_id' => $groupChatUser->user_id,
+                    'sender_user_id'   => $user->id,
                     'message_type'     => $this->messageType->value,
                     'message_id'       => $messageText->id,
                     'is_system'        => (int)$this->isSystem
                 ]);
+
+                if ($index === 0) {
+                    $first = $chatGroup;
+                }
+
+                // 发送消息（除了自己）
+                if ($user->id !== $groupChatUser->user_id) {
+                    $chatGroup->load($chatGroupRelations);
+                    WebsocketFacade::send($groupChatUser->user, $chatGroup->toJson());
+                }
 
                 // 创建会话
                 $this->createSession($this->groupChat, $groupChatUser, $chatGroup);
@@ -112,7 +142,9 @@ class ChatGroup implements SendSourceFactory
             throw $e;
         }
 
-        return $chatGroup;
+        $first->load($chatGroupRelations);
+
+        return $first;
     }
 
     /**

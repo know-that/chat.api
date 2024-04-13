@@ -4,19 +4,14 @@ namespace App\Websocket\Controllers;
 
 use App\Enums\Model\GroupChatUserIdentityEnum;
 use App\Enums\Model\MessageTypeEnum;
-use App\Facades\ChatFacade;
 use App\Models\Friend\FriendModel;
 use App\Models\Group\GroupChatModel;
 use App\Services\Chat\ChatGroup;
-use App\Services\Chat\ChatSingle;
 use App\Services\ToolService;
 use App\Websocket\Requests\GroupChat\GroupChatStoreRequest;
-use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Psy\Util\Json;
 use Throwable;
 
 /**

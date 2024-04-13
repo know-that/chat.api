@@ -10,6 +10,7 @@ use App\Models\Group\GroupChatModel;
 use App\Models\Message\MessageFileModel;
 use App\Models\Message\MessageTextModel;
 use App\Models\User\UserModel;
+use App\Services\Chat\ChatGroup;
 use App\Services\Chat\ChatSingle;
 use App\Services\MessageService;
 use App\Websocket\Controllers\Controller;
@@ -36,6 +37,7 @@ class ChatGroupController extends Controller
         $user = $request->user();
 
         $chats = ChatGroupModel::with([
+                'senderUser:id,nickname,account,avatar,gender',
                 'message' => function ($query) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) {
@@ -65,22 +67,16 @@ class ChatGroupController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
-     * @throws ForbiddenException
-     * @throws GuzzleException
-     * @throws Throwable
      */
     public function store(Request $request): JsonResponse
     {
-        $params = $request->only(['user_id', 'message_type', 'message']);
+        $params = $request->only(['group_chat_id', 'message_type', 'message']);
         $user = $request->user();
 
-        $receiverUser = UserModel::findOrFail($params['user_id']);
-        if ($user->id === $receiverUser->id) {
-            throw new ForbiddenException("请勿给自己发送消息");
-        }
+        $groupChat = GroupChatModel::with('users.user')->findOrFail($params['group_chat_id']);
 
         // 创建消息
-        $chatSource = (new ChatSingle)->payload($receiverUser, $params['message'], $params['message_type']);
+        $chatSource = (new ChatGroup())->payload($groupChat, $params['message'], $params['message_type']);
         $chatSingle = ChatFacade::sendTo($user, $chatSource);
 
         return $this->response($chatSingle);

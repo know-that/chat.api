@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Chat\ChatNoticeModel;
 use App\Models\Chat\ChatSingleModel;
+use App\Models\Group\GroupChatModel;
 use App\Models\Message\MessageFileModel;
 use App\Models\Message\MessageTextModel;
 use App\Models\User\SystemUserModel;
@@ -29,6 +30,9 @@ class ChatSessionService
                     },
                     SystemUserModel::class => function ($query) {
                         $query->selectRaw('id, type, nickname, avatar');
+                    },
+                    GroupChatModel::class => function ($query) {
+                        $query->selectRaw('id, sn, nickname, avatar, creator_id');
                     },
                 ]);
             },
