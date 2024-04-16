@@ -184,6 +184,25 @@ class AuthController extends Controller
     }
 
     /**
+     * 修改当前用户信息
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Request $request): JsonResponse
+    {
+        $params = $request->only(['avatar', 'nickname', 'gender']);
+        $user = $request->user();
+
+        foreach ($params as $key=>$value) {
+            $user->{$key} = $value;
+        }
+        $user->save();
+
+        return $this->response();
+    }
+
+    /**
      * Refresh a token.
      *
      * @return JsonResponse

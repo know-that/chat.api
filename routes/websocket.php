@@ -75,6 +75,8 @@ Route::name('websocket.')->group(function () {
         // 当前用户信息
         Route::get('/auth/me', [AuthController::class, 'show']);
 
+        Route::post('/auth/me', [AuthController::class, 'update']);
+
         // 用户好友列表
         Route::get('/user/friends', [UserController::class, 'friends']);
 
