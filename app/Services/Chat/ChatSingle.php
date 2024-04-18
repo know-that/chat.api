@@ -87,8 +87,8 @@ class ChatSingle implements SendSourceFactory
 
             // 创建单聊
             $chatSingle = ChatSingleModel::create([
-                'receiver_user_id'  => $user->id,
-                'sender_user_id'    => $this->receiverUser->id,
+                'receiver_user_id'  => $this->receiverUser->id,
+                'sender_user_id'    => $user->id,
                 'message_type'      => $this->messageType->value,
                 'message_id'        => $messageText->id
             ]);

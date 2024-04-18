@@ -87,6 +87,7 @@ Route::name('websocket.')->group(function () {
          * 好友
          */
         Route::apiResource('friends', FriendController::class);
+        Route::put('/friends/{id}/alias', [FriendController::class, 'updateAlias']);
 
         /**
          * 好友请求

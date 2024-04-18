@@ -31,9 +31,13 @@ class ChatSingleController extends Controller
     {
         $receiverUserId = $request->input('receiver_user_id');
         $receiverUser = UserModel::findOrFail($receiverUserId);
-        $senderUser = $request->user();
+        $user = $request->user();
 
         $chats = ChatSingleModel::with([
+                'senderUser:id,nickname,account,avatar,gender',
+                'senderUser.friend' => function ($query) use ($user) {
+                    $query->where('user_id', $user->id)->selectRaw('id, user_id, friend_id, alias');
+                },
                 'message' => function ($query) {
                     $query->constrain([
                         MessageTextModel::class => function ($query) {
@@ -45,11 +49,11 @@ class ChatSingleController extends Controller
                     ]);
                 }
             ])
-            ->where(function ($query) use ($receiverUser, $senderUser) {
-                $query->where('receiver_user_id', $receiverUser->id)->where('sender_user_id', $senderUser->id)->where('is_system', 0);
+            ->where(function ($query) use ($receiverUser, $user) {
+                $query->where('receiver_user_id', $receiverUser->id)->where('sender_user_id', $user->id)->where('is_system', 0);
             })
-            ->orWhere(function ($query) use ($receiverUser, $senderUser) {
-                $query->where('receiver_user_id', $senderUser->id)->where('sender_user_id', $receiverUser->id);
+            ->orWhere(function ($query) use ($receiverUser, $user) {
+                $query->where('receiver_user_id', $user->id)->where('sender_user_id', $receiverUser->id);
             })
             ->orderBy('id', 'desc')
             ->paginate(10);

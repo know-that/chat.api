@@ -23,9 +23,12 @@ class ChatSessionService
     public function relations(UserModel $user = null): array
     {
         return [
-            'source' => function ($query) {
+            'source' => function ($query) use ($user) {
                 $query->constrain([
-                    UserModel::class => function ($query) {
+                    UserModel::class => function ($query) use ($user) {
+                        if ($user) {
+                            $query->with('friend:id,user_id,friend_id,alias');
+                        }
                         $query->selectRaw('id, nickname, account, avatar, gender');
                     },
                     SystemUserModel::class => function ($query) {

@@ -25,7 +25,7 @@ class ChatSessionController extends Controller
         $user = $request->user();
 
         $sessions = ChatSessionModel::query()
-            ->with(ChatSessionFacade::relations())
+            ->with(ChatSessionFacade::relations($user))
             ->where('user_id', $user->id)
             ->orderBy('top_at', 'desc')
             ->orderBy('updated_at', 'desc')

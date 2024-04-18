@@ -5,8 +5,11 @@ namespace App\Models\User;
 use App\Enums\Model\UserGenderEnum;
 use App\Facades\ToolFacade;
 use App\Models\Chat\ChatSingleModel;
+use App\Models\Friend\FriendModel;
 use App\Traits\Model\BootTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -97,5 +100,14 @@ class UserModel extends AuthUser implements JWTSubject
     public function notReadChats(): HasMany
     {
         return $this->hasMany(ChatSingleModel::class, 'receiver_user_id', 'id')->where('is_read', 0);
+    }
+
+    /**
+     * 关联好友
+     * @return HasOne
+     */
+    public function friend(): HasOne
+    {
+        return $this->hasOne(FriendModel::class, 'friend_id', 'id');
     }
 }
