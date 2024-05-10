@@ -105,6 +105,10 @@ class ChatSingle implements SendSourceFactory
             throw $e;
         }
         $chatSingle->load([
+            'senderUser:id,nickname,account,avatar,gender',
+            'senderUser.friend' => function ($query) use ($user) {
+                $query->where('user_id', $user->id)->selectRaw('id, user_id, friend_id, alias');
+            },
             'message' => function ($query) {
                 $query->constrain([
                     MessageTextModel::class => function ($query) {
